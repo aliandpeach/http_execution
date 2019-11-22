@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="off" monitorInterval="1800">
+    <properties>
+        <property name="LOG_HOME">D:/logs</property>
+        <property name="ERROR_LOG_FILE_NAME">error</property>
+        <property name="DEBUG_LOG_FILE_NAME">debug</property>
+        <property name="INFO_LOG_FILE_NAME">info</property>
+    </properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p (%F:%L) - %m%n"/>
+        </Console>
+        <RollingRandomAccessFile name="request"
+                                 fileName="${LOG_HOME}/request_${INFO_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="Categories"
+                                 fileName="${LOG_HOME}/Categories.log"
+                                 filePattern="${LOG_HOME}/Categories.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="druid_conn"
+                                 fileName="${LOG_HOME}/druid_conn_${ERROR_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="InfoLog"
+                                 fileName="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="ErrorLog"
+                                 fileName="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="MutilRequest"
+                                 fileName="${LOG_HOME}/MutilRequest.log"
+                                 filePattern="${LOG_HOME}/MutilRequest.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="errorLog"
+                                 fileName="${LOG_HOME}/errorLog.log"
+                                 filePattern="${LOG_HOME}/errorLog.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- com.yk.myql 包下的类可以根据Class.class获取日志实例打印的日志存入info.log 和error.log-->
+        <logger name="com.yk.mysql" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="ErrorLog"/>
+            <appender-ref ref="InfoLog"/>
+        </logger>
+        <logger name="druid_conn" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="druid_conn"/>
+        </logger>
+        <logger name="request" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="request"/>
+        </logger>
+        <logger name="RSA" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="request"/>
+        </logger>
+        <logger name="MutilRequest" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="MutilRequest"/>
+        </logger>
+
+        <logger name="Categories" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="Categories"/>
+        </logger>
+        <logger name="errorLog" level="error" includeLocation="true" additivity="false">
+            <appender-ref ref="errorLog"/>
+        </logger>
+
+        <root level="info" includeLocation="true">
+            <appender-ref ref="Console"/>
+        </root>
+    </Loggers>
+</Configuration>
