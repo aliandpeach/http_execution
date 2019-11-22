@@ -1,6 +1,8 @@
 package com.yk.mysql;
 
+import com.alibaba.druid.pool.DruidConnectionHolder;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.yk.config.CommonConfig;
 import com.yk.rsa.RSA2048Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,16 @@ public class DruidConnection
         properties = new Properties();
         try
         {
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("druid.properties"));
+            Properties druid = CommonConfig.getInstance().getDruidProperties();
+            if (null != druid)
+            {
+                properties = druid;
+            }
+            else
+            {
+                properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("druid.properties"));
+            }
+
         }
         catch (IOException e)
         {

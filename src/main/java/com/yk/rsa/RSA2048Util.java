@@ -1,5 +1,6 @@
 package com.yk.rsa;
 
+import com.yk.config.CommonConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.yk.util.Constants.*;
 
 /**
- * 通过java keytool生成私钥(root.jks)和公钥(root.crt)放入keystore文件中，使用密码保护起来
+ * 通过java keytool生成私钥(root.jks)和公钥(root.crt), 私钥放入keystore文件中，使用密码保护起来
  */
 public class RSA2048Util
 {
@@ -42,9 +43,9 @@ public class RSA2048Util
         try
         {
             KeyStore privateKeyStore = KeyStore.getInstance("JKS");
-            privateKeyStore.load(inputStream, ROOT_JKS_PWD.toCharArray());
+            privateKeyStore.load(inputStream, CommonConfig.getInstance().getRootJKSPwd().toCharArray());
             Certificate certificate = privateKeyStore.getCertificate(ALIAS);
-            Key key = privateKeyStore.getKey(ALIAS, ROOT_JKS_PWD.toCharArray());
+            Key key = privateKeyStore.getKey(ALIAS, CommonConfig.getInstance().getRootJKSPwd().toCharArray());
             keys.put("private", key.getEncoded());
             return key.getEncoded();
         }

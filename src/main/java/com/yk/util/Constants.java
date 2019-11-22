@@ -4,7 +4,7 @@ public class Constants
 {
     public static final String REGEX_FILE_NAME = "[\\s\\\\/:\\*\\?\\\"<>\\|]";
 
-    public static final String ROOT_DIR = "";
+    /*public static final String ROOT_DIR = "";*/
 
     /*public static final String LATEST = "Yo9rLZDyo1hOQfOdPDX21StGcCdRos26gdEg0E3SEmsUYc7tK/tix5k4wTk0Q89RDJmzT9y6pyXUsXCRSfEPQpOlTY6C1y9Od0utyMUV1fDM4eCrXmOKV9HGH66uQXckRdQsf/jqiq8hIl0vdJHi6uJFoYmWZgu6RiFxLG81JL5sAewzJ9WvXGY6KVXwf18K6sfq8reffAXMU9u3ErYmlJ3yOEhSfoVlKBvQ2YBO3aCGple9zBUHpavpu/5vOXZggX2287W5M5tLyTXVVBOUtSSELRfKscJx4jbdW9K2VUcknNlnf1K45zGEGEE7WP2pYy2rtSpF4fgPnZBAJp192Q==";
 
@@ -12,7 +12,7 @@ public class Constants
 
     public static final String POP = "RU6wow7ZyffXXZlzH3q8U/QtKAXDABSM8pgU0efomoHFhpyuyKbTM4lT8+mTu9qWYUrauc6ctXH3TNK+Uu3gnVrXmq0yvjhFY87CNrIJTnps2sFB6wKABgNnAR6CE90661rGwDoTk4fQf2aDXUvyzZghbvpk5w7NTQT4Ew1DXLC5GkB6Hd3w8XzK3FcWMCUUuDzH8TP2a7MhOpxtoFmmgMHCp7kOyITNkZNZ6KnkQnROkzVfd5LtAoVidz1sU6+UpQHTXDFDpIzedqBWamuQRuD/gXbkg+fHx7DD7E4gZhpXQ2NoIqZTF2vc8LyDlsYjkc81j06ovbjayfiC5kDrbQ==";*/
 
-    public static final String ROOT_JKS_PWD = "";
+    /*public static final String ROOT_JKS_PWD = "";*/
 
     public static final String ALIAS = "crazy";
 

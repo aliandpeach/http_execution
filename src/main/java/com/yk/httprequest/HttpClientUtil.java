@@ -1,6 +1,7 @@
 package com.yk.httprequest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.yk.config.CommonConfig;
 import com.yk.util.Constants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -400,7 +401,7 @@ public class HttpClientUtil
                 FileOutputStream randomAccessFile = null;
                 try
                 {
-                    randomAccessFile = new FileOutputStream(new File(Constants.ROOT_DIR + fileName));
+                    randomAccessFile = new FileOutputStream(new File(CommonConfig.getInstance().getRootDir() + fileName));
                     byte[] buffer = new byte[1024 * 1024];
                     int len = 0;
                     while ((len = inputStream.read(buffer)) != -1)

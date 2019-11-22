@@ -1,1 +1,1 @@
-java -jar http_execution.jar
+java -jar -Dcommon.conf=config http_execution.jar
