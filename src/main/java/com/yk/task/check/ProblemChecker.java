@@ -1,5 +1,6 @@
 package com.yk.task.check;
 
+import com.yk.config.CommonConfig;
 import com.yk.mysql.DruidConnection;
 import com.yk.util.Constants;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class ProblemChecker implements Runnable
         while (true)
         {
             long _start = System.currentTimeMillis();
-            File files = new File(Constants.ROOT_DIR);
+            File files = new File(CommonConfig.getInstance().getRootDir());
             File list[] = files.listFiles(file -> file.exists() && file.length() < 1024 * 1024);
             Arrays.asList(list).stream().forEach((f) -> {
                 if (f.getName().indexOf(DOWNLOAD_FILENAME) == -1 || f.getName().lastIndexOf(".") == -1 || f.getName().indexOf(DOWNLOAD_FILENAME) >= f.getName().lastIndexOf("."))
