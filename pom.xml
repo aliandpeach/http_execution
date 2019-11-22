@@ -83,7 +83,7 @@
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
-                <targetPath>/config</targetPath>
+                <targetPath>${project.basedir}/config</targetPath>
                 <includes>
                     <include>*.properties</include>
                     <include>log4j2.xml</include>
