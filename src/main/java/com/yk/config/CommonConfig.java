@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class CommonConfig
@@ -30,7 +31,7 @@ public class CommonConfig
     private void loadDruidConf()
     {
         Object _confPath = System.getProperty("common.conf");
-        if (null != _confPath)
+        if (null == _confPath)
         {
             return;
         }
@@ -54,20 +55,24 @@ public class CommonConfig
     private void loadConf()
     {
         Object _confPath = System.getProperty("common.conf");
-        if (null != _confPath)
+        if (null == _confPath)
         {
-            return;
+            _confPath = "";
         }
         String _userDir = System.getProperty("user.dir");
         File confFile = new File(_userDir + File.separator + _confPath + File.separator + "conf.properties");
-        if (!confFile.exists() || !confFile.isFile())
-        {
-            return;
-        }
+        Properties conf = new Properties();
         try
         {
-            Properties conf = new Properties();
-            conf.load(new FileInputStream(confFile));
+            if (!confFile.exists() || !confFile.isFile())
+            {
+                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf.properties");
+                conf.load(CommonConfig.class.getClassLoader().getResourceAsStream("conf.properties"));
+            }
+            else
+            {
+                conf.load(new FileInputStream(confFile));
+            }
             rootDir = conf.getProperty("root.dir");
             rootJKSPwd = conf.getProperty("jks.pwd");
         }
@@ -80,7 +85,7 @@ public class CommonConfig
     private void loadLog4j2xml()
     {
         Object _log4jConfPath = System.getProperty("common.conf");
-        if (null != _log4jConfPath)
+        if (null == _log4jConfPath)
         {
             return;
         }
