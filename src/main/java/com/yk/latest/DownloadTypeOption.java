@@ -9,28 +9,39 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DownloadTypeOption
-{
-    public static void updateLatestUrlByType(String type, String latestUrl)
-    {
+public class DownloadTypeOption {
+    public static void updateLatestUrlByType(String type, String latestUrl) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try
-        {
+        try {
             DataSource dataSource = DruidConnection.getInstance().getDuridDatasource();
             conn = dataSource.getConnection();
             ps = conn.prepareStatement("update download_type set download_latest_url = ? where download_type = ?");
             ps.setString(1, RSA2048Util.encrypt(latestUrl));
             ps.setString(2, type);
             ps.execute();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DruidConnection.close(conn, ps, rs);
         }
-        finally
-        {
+    }
+
+    public static void updateLatestPageByType(int page, String latestUrl) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            DataSource dataSource = DruidConnection.getInstance().getDuridDatasource();
+            conn = dataSource.getConnection();
+            ps = conn.prepareStatement("UPDATE download_c_type SET categories_page = ? where categories_url = ?");
+            ps.setInt(1, page);
+            ps.setString(2, latestUrl);
+            ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
             DruidConnection.close(conn, ps, rs);
         }
     }

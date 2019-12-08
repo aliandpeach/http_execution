@@ -399,10 +399,11 @@ public class HttpClientUtil
             {
                 InputStream inputStream = httpEntity.getContent();
                 FileOutputStream randomAccessFile = null;
+                byte[] buffer = null;
                 try
                 {
                     randomAccessFile = new FileOutputStream(new File(CommonConfig.getInstance().getRootDir() + fileName));
-                    byte[] buffer = new byte[1024 * 1024];
+                    buffer = new byte[1024 * 100];
                     int len = 0;
                     while ((len = inputStream.read(buffer)) != -1)
                     {
@@ -430,6 +431,8 @@ public class HttpClientUtil
                     {
                         logger.error("ScanTask IOException error", e);
                     }
+                    buffer = null;
+                    System.gc();
                 }
             }
             return false;

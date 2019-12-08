@@ -74,6 +74,12 @@ public class CommonConfig
                 conf.load(new FileInputStream(confFile));
             }
             rootDir = conf.getProperty("root.dir");
+            File dir = new File(rootDir);
+            if (!dir.exists())
+            {
+                boolean flag = dir.mkdirs();
+                logger.info("dir.mkdirs result : " + flag);
+            }
             rootJKSPwd = conf.getProperty("jks.pwd");
         }
         catch (IOException e)

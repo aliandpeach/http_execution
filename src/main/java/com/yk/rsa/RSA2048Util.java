@@ -188,5 +188,7 @@ public class RSA2048Util
 
     public static void main(String[] args)
     {
+        System.out.println(encrypt(""));
+        System.out.println(encrypt(""));
     }
 }

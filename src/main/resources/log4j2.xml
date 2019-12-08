@@ -23,9 +23,9 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingRandomAccessFile>
-        <RollingRandomAccessFile name="Categories"
-                                 fileName="${LOG_HOME}/Categories.log"
-                                 filePattern="${LOG_HOME}/Categories.log.%d{yyyy-MM-dd}.gz">
+        <RollingRandomAccessFile name="categories"
+                                 fileName="${LOG_HOME}/categories.log"
+                                 filePattern="${LOG_HOME}/categories.log.%d{yyyy-MM-dd}.gz">
             <PatternLayout
                     pattern="%d %-5p (%F:%L) - %m%n"/>
             <Policies>
@@ -110,8 +110,8 @@
             <appender-ref ref="MutilRequest"/>
         </logger>
 
-        <logger name="Categories" level="info" includeLocation="true" additivity="false">
-            <appender-ref ref="Categories"/>
+        <logger name="categories" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="categories"/>
         </logger>
         <logger name="errorLog" level="error" includeLocation="true" additivity="false">
             <appender-ref ref="errorLog"/>
