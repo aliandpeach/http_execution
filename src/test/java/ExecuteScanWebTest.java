@@ -7,12 +7,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.InputStream;
 import java.util.Map;
 
 public class ExecuteScanWebTest
 {
     public static void main(String[] args)
     {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("conf.properties");
+        InputStream in2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("/conf.properties");
+        InputStream in3 = Thread.class.getResourceAsStream("conf.properties");
+        InputStream in4 = Thread.class.getResourceAsStream("/conf.properties");
         Map<Integer, String> hosts = HostHolder.getInstance().getHostParameters();
         ExecuteScanWebTest test = new ExecuteScanWebTest();
         test.executeScanWeb(hosts, "top-rated/", false, 0);

@@ -46,7 +46,7 @@ public class ScanTask extends AbstractTask
         boolean results = false;
         try
         {
-            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName);
+            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, "");
             if (!results)
             {
                 logger.error("executeDownload results is null url = " + url);

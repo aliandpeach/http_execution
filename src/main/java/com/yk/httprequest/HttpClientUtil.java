@@ -129,7 +129,7 @@ public class HttpClientUtil
         return null;
     }
 
-    public static boolean getBytes(String url, Map<String, String> headers, Map<String, String> params, String fileName)
+    public static boolean getBytes(String url, Map<String, String> headers, Map<String, String> params, String fileName, String dir)
     {
         CloseableHttpClient client = null;
         try
@@ -144,7 +144,7 @@ public class HttpClientUtil
             httpGet.addHeader("Connection", "keep-alive");
             httpGet.addHeader("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36");
             System.out.println("" + url);
-            return client.execute(httpGet, new CurResponseHandlerBytes(fileName));
+            return client.execute(httpGet, new CurResponseHandlerBytes(fileName, dir));
         }
         catch (IOException e)
         {
@@ -379,10 +379,18 @@ public class HttpClientUtil
     static class CurResponseHandlerBytes implements ResponseHandler<Boolean>
     {
         private String fileName;
+        private String dir;
 
-        public CurResponseHandlerBytes(String fileName)
+        private String targetDir;
+
+        public CurResponseHandlerBytes(String fileName, String dir)
         {
             this.fileName = fileName;
+            this.dir = dir.replaceAll(Constants.REGEX_FILE_NAME, "");
+            targetDir = CommonConfig.getInstance().getRootDir() + File.separator + dir + File.separator;
+            if (!new File(targetDir).exists()) {
+                new File(targetDir).mkdirs();
+            }
         }
 
 
@@ -402,7 +410,7 @@ public class HttpClientUtil
                 byte[] buffer = null;
                 try
                 {
-                    randomAccessFile = new FileOutputStream(new File(CommonConfig.getInstance().getRootDir() + fileName));
+                    randomAccessFile = new FileOutputStream(new File(targetDir + fileName));
                     buffer = new byte[1024 * 100];
                     int len = 0;
                     while ((len = inputStream.read(buffer)) != -1)

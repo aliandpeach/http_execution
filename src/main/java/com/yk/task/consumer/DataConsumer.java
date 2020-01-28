@@ -1,10 +1,8 @@
 package com.yk.task.consumer;
 
-import com.yk.task.DownloadScan;
 import com.yk.task.datacenter.DataCenter;
 
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class DataConsumer implements Runnable

@@ -34,6 +34,17 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="categoriesCenter"
+                                 fileName="${LOG_HOME}/categoriesCenter.log"
+                                 filePattern="${LOG_HOME}/categoriesCenter.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout
+                    pattern="%d %-5p (%F:%L) - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
         <RollingRandomAccessFile name="druid_conn"
                                  fileName="${LOG_HOME}/druid_conn_${ERROR_LOG_FILE_NAME}.log"
                                  filePattern="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
@@ -112,6 +123,9 @@
 
         <logger name="categories" level="info" includeLocation="true" additivity="false">
             <appender-ref ref="categories"/>
+        </logger>
+        <logger name="categoriesCenter" level="info" includeLocation="true" additivity="false">
+            <appender-ref ref="categoriesCenter"/>
         </logger>
         <logger name="errorLog" level="error" includeLocation="true" additivity="false">
             <appender-ref ref="errorLog"/>

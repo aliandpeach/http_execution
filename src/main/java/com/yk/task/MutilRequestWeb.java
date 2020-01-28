@@ -9,6 +9,8 @@ import com.yk.task.categories.CategoriesTask;
 import com.yk.task.categories.CategoriesType;
 import com.yk.task.check.ProblemChecker;
 import com.yk.task.consumer.DataConsumer;
+import com.yk.task.datacenter.CategoriesCenter;
+import com.yk.task.datacenter.DataCenter;
 import com.yk.task.producer.DataProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public class MutilRequestWeb {
         Map<Integer, String> hosts = HostHolder.getInstance().getHostParameters();
         Map<String, DownloadType> types = DownloadTypeHolder.getInstance().getTypeParameters();
 
-        ExecutorService scanService = Executors.newFixedThreadPool(3);
+        /*ExecutorService scanService = Executors.newFixedThreadPool(3);
         types.entrySet().stream().forEach((t) -> {
             if (null == t.getValue() || (null == t.getValue().getLatestUrl() && null == t.getValue().getOriginalUrl())) {
                 return;
@@ -62,7 +64,7 @@ public class MutilRequestWeb {
                     }
                 }
             });
-        });
+        });*/
 
         ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactory() {
             private AtomicInteger integer = new AtomicInteger(1);
@@ -80,9 +82,52 @@ public class MutilRequestWeb {
         /*new Thread(new DataConsumer(hosts)).start();
         new Thread(new DataConsumer(hosts)).start();*/
 
+        executorService.submit(() -> {
+            while (true) {
+                try {
+                    CategoriesCenter.consumer(hosts);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        executorService.submit(() -> {
+            while (true) {
+                try {
+                    CategoriesCenter.consumer(hosts);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        executorService.submit(() -> {
+            while (true) {
+                try {
+                    CategoriesCenter.producer();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         CategoriesSearch search = new CategoriesSearch();
         ExecutorService executorCateService = Executors.newFixedThreadPool(20);
-        executorCateService.submit(() -> {
+        /*executorCateService.submit(() -> {
             search.search();
             List<CategoriesType> all = search.getListCategoriesType();
             all.stream().forEach(t -> {
@@ -112,6 +157,6 @@ public class MutilRequestWeb {
                     }
                 });
             });
-        });
+        });*/
     }
 }

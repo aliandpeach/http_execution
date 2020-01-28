@@ -6,6 +6,7 @@ import com.yk.latest.DownloadTypeHolder;
 import com.yk.latest.DownloadTypeOption;
 import com.yk.mysql.DruidConnection;
 import com.yk.task.AbstractTask;
+import com.yk.util.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -319,5 +320,42 @@ public class CategoriesTask extends AbstractTask {
                 });
             });
         });
+    }
+
+
+    public boolean executeDownload(Map<Integer, String> hosts, String url, int index, String ctype)
+    {
+        logger.info("executeDownload index : " + index + "  url = " + url);
+        if (!hosts.containsKey(index))
+        {
+            return false;
+        }
+        String finalName = url.replaceAll(Constants.REGEX_FILE_NAME, "");
+        boolean results = false;
+        try
+        {
+            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, ctype);
+            if (!results)
+            {
+                logger.error("executeDownload results is null url = " + url);
+                _sleep(10000);
+                return executeDownload(hosts, url, ++index, ctype);
+            }
+        }
+        catch (RuntimeException e)
+        {
+            logger.error("executeDownload RuntimeException results is null url = " + url, e);
+            _sleep(10000);
+            return executeDownload(hosts, url, ++index, ctype);
+        }
+        catch (Exception e)
+        {
+            logger.error("executeDownload Exception results is null url = " + url, e);
+            _sleep(10000);
+            return executeDownload(hosts, url, ++index, ctype);
+        }
+
+        logger.info("executeDownload index : " + index + "  url = " + url + " download success!");
+        return results;
     }
 }

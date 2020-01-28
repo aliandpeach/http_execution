@@ -1,9 +1,7 @@
 package com.yk.task.producer;
 
-import com.yk.task.DownloadScan;
 import com.yk.task.datacenter.DataCenter;
 
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class DataProducer implements Runnable
