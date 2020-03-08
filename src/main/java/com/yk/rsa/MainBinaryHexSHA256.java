@@ -6,6 +6,10 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 public class MainBinaryHexSHA256 {
     public static void main(String[] args) {
@@ -64,6 +68,43 @@ public class MainBinaryHexSHA256 {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        int _num = 13;
+        System.out.println("十进制转二进制：" + Integer.toBinaryString(_num));
+        System.out.println("十进制转八进制：" + Integer.toOctalString(_num));
+        System.out.println("十进制转十六进制：" + Integer.toHexString(_num));
+        System.out.println("十进制转二进制：" + Integer.toString(_num, 2));
+        System.out.println("十进制转八进制：" + Integer.toString(_num, 8));
+        System.out.println("十进制转十六进制：" + Integer.toString(_num, 16));
+
+
+        System.out.println("十六进制转换十进制：" + new BigInteger("fffff", 16).intValue());
+        System.out.println("十六进制转换十进制：" + change("fffff", 16, 10));
+
+        String _onum = "1410";
+        System.out.println("八进制转换十进制：" + Integer.parseInt(_onum, 8));
+        System.out.println("八进制转换十进制：" + Integer.valueOf(_onum, 8));
+
+        String _hnum = "fffff";
+        System.out.println("十六进制转换十进制：" + Integer.parseInt(_hnum, 16));
+        System.out.println("十六进制转换十进制：" + Integer.valueOf(_hnum, 16));
+
+        String _bnum = "100110";
+        System.out.println("二进制转换十进制：" + Integer.parseInt(_bnum, 2));
+        System.out.println("二进制转换十进制：" + Integer.valueOf(_bnum, 2));
+
+        System.out.println(binary2Integer(13, 2));
+        System.out.println(binary2Integer(13, 8));
+        System.out.println(integer2Binary("1101", 2));
+    }
+
+    /**
+     * number   要转换的数
+     * from     原数的进制
+     * to       要转换成的进制
+     */
+    private static String change(String number, int from, int to) {
+        return new BigInteger(number, from).toString(to);
     }
 
     /**
@@ -84,5 +125,38 @@ public class MainBinaryHexSHA256 {
             stringBuffer.append(temp);
         }
         return stringBuffer.toString();
+    }
+
+    private static String binary2Integer(int i, int radix) {
+        Stack<Integer> stack = new Stack<>();
+        while (i > 0) {
+            stack.push(i % radix);
+            i = i / radix;
+        }
+
+        StringBuffer str = new StringBuffer();
+        while (!stack.empty()) {
+            str.append(stack.pop());
+        }
+
+        return str.toString();
+    }
+
+    private static int integer2Binary(String s, int radix) {
+        int r = 0;
+        char ary[] = s.toCharArray();
+        Stack<Integer> stack = new Stack<>();
+        for (int k = ary.length - 1; k >= 0; k--) {
+            System.out.println(k);
+            stack.push(Integer.parseInt(ary[k] + ""));
+        }
+
+        int t = stack.size() - 1;
+        while (!stack.empty()) {
+            int p = stack.pop();
+            r += p * (int) Math.pow(radix, t);
+            t--;
+        }
+        return r;
     }
 }

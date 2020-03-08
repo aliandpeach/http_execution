@@ -2,6 +2,7 @@ package com.yk;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.*;
@@ -45,6 +46,12 @@ public class LambdaTest {
         Supplier<String> s2 = String::new;//String的构造方法
 
         Optional.of("a").ifPresent(System.out::println);
+
+        List<People> list = new ArrayList<>();
+        Comparator<People> comparatorPeople_a = Comparator.comparing(People::getName);
+        Comparator<People> comparatorPeople = (o1, o2) -> o1.getName().compareTo(o2.getName());
+        BiFunction<People, People, Integer> funPeople = (o1, o2) -> o1.getName().compareTo(o2.getName());
+        list.sort(comparatorPeople);
     }
 
     public static String test() {
@@ -68,6 +75,27 @@ public class LambdaTest {
         @Override
         public int compareTo(Object o) {
             return 0;
+        }
+    }
+
+    static class People {
+        String name;
+        Integer age;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getAge() {
+            return age;
+        }
+
+        public void setAge(Integer age) {
+            this.age = age;
         }
     }
 }
