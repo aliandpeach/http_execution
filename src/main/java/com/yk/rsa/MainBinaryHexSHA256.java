@@ -12,8 +12,14 @@ import java.util.List;
 import java.util.Stack;
 
 public class MainBinaryHexSHA256 {
+
+    /**
+     * github连接过程中的回显的指纹信息，就是本地的publicKey进行Base64解密后，再执行MessageDigest("SHA-256") 后转16进制字符串
+     *
+     * @param args
+     */
     public static void main(String[] args) {
-        String path = "C:\\Users\\Acer\\Downloads\\openssl-1.0.2u.tar.gz";
+        String path = "D:\\Program Files (x86)\\几鸡客户端.7z";
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             FileInputStream input = new FileInputStream(new File(path));
@@ -36,14 +42,14 @@ public class MainBinaryHexSHA256 {
 
 
             byte[] rtn = messageDigest.digest();
-            System.out.println("通过每次updat byte[1024] 计算的hash : " + byte2Hex(rtn));
-            System.out.println("把文件一次性读入后 计算的hash : " + byte2Hex(MessageDigest.getInstance("SHA-256").digest(clone)));
-            System.out.println("把文件一次性读入后 计算的hash : " + DigestUtils.sha256Hex(clone));
+            System.out.println("byte2Hex 转换byte[]为16进制 : " + byte2Hex(rtn));
+            System.out.println("把文件一次性读入后 计算的hash 再转换为16进制 : " + byte2Hex(MessageDigest.getInstance("SHA-256").digest(clone)));
+            System.out.println("把文件一次性读入后 计算的hash 再转换为16进制 : " + DigestUtils.sha256Hex(clone));
 
             //1代表绝对值, 该方法可以把byte[] 转换为16进制字符串
             BigInteger bigInt = new BigInteger(1, rtn);
             String ahex = bigInt.toString(16);
-            System.out.println("通过每次updat byte[1024] 计算的hash : " + ahex);//转换为16进制
+            System.out.println("BigInteger 转换byte[]为16进制 : " + ahex);//转换为16进制
             /*MessageDigest messageDigest1 = MessageDigest.getInstance("SHA1");
             messageDigest1.update(clone);
             byte[] rtn1 = messageDigest.digest();

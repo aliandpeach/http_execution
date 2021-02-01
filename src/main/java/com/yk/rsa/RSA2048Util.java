@@ -152,6 +152,7 @@ public class RSA2048Util
             PublicKey publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(x509EncodedKeySpec);
             Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            int blockSize = cipher.getBlockSize();
             String outStr = Base64.encodeBase64String(cipher.doFinal(str.getBytes("UTF-8")));
             return outStr;
         }
