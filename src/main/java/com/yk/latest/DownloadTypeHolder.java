@@ -60,7 +60,7 @@ public class DownloadTypeHolder
                 typeParameters.put(type, downloadType);
             }
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }

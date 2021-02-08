@@ -7,10 +7,19 @@ import com.yk.rsa.RSA2048Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -68,7 +77,14 @@ public class DruidConnection
         druidDataSource.setUrl(properties.getProperty("jdbc.url"));
         druidDataSource.setUsername(properties.getProperty("jdbc.username"));
         String pwd = properties.getProperty("jdbc.password");
-        druidDataSource.setPassword(RSA2048Util.decrypt(pwd));
+        try
+        {
+            druidDataSource.setPassword(RSA2048Util.decrypt(pwd));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         druidDataSource.setMaxActive(Integer.parseInt(properties.getProperty("jdbc.maxActive")));
         druidDataSource.setInitialSize(1);
         druidDataSource.setMinIdle(5);

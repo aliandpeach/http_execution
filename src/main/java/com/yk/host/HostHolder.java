@@ -43,7 +43,7 @@ public class HostHolder
                 hostParameters.put(index++, name);
             }
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }

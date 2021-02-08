@@ -20,7 +20,7 @@ public class MainBinaryHexSHA256
      */
     public static void main(String[] args)
     {
-        String path = "D:\\Program Files (x86)\\几鸡客户端.7z";
+        String path = "F:\\Download\\vcredist_x64.exe";
         try
         {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -30,6 +30,8 @@ public class MainBinaryHexSHA256
             byte buff[] = new byte[1024];
             while ((len = input.read(buff)) != -1)
             {
+                // 严格注意这里的len, 如果写成buff.length那么当最后一次读取小于1024的时候，就会出错
+                // 原因就是byte[1024] 没有填充的位置默认是0，sha-256的计算会包括哪些0
                 messageDigest.update(buff, 0, len);
                 bos.write(buff, 0, len);
             }
@@ -67,9 +69,7 @@ public class MainBinaryHexSHA256
             String ahexx = bigInt22.toString(16);
             System.out.println("通过每次updat byte[1024] 计算的hex hash 字符串，再通过bigInteger 转成byte[] 再转成hex hash : " + ahexx);
             
-            // 为什么java 计算的 OpenSSL的文件包的sha356 hash值和win certutil计算的不一样呢
-            //certutil -hashfile C:\Users\Acer\Downloads\openssl-1.0.2u.tar.gz SHA256
-            // 因为cerutil是每次读取byte[1024]
+            // certutil -hashfile [fille] SHA256
         }
         catch (NoSuchAlgorithmException | IOException e)
         {

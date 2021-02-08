@@ -29,6 +29,8 @@ public class RSA2048Util
     
     private static Map<String, byte[]> keys = new ConcurrentHashMap<>();
     
+    private static final char[] P = "".toCharArray();
+    
     private static synchronized byte[] getPrivateKey() throws IOException,
             KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException
     {
@@ -39,7 +41,7 @@ public class RSA2048Util
         try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
         {
             KeyStore privateKeyStore = KeyStore.getInstance("JKS");
-            privateKeyStore.load(inputStream, "Lambda@@65535$$".toCharArray());
+            privateKeyStore.load(inputStream, P);
             PrivateKey key = (PrivateKey) privateKeyStore.getKey("crazy", "Lambda@@65535$$".toCharArray());
             keys.put("private", key.getEncoded());
             return key.getEncoded();
@@ -55,7 +57,7 @@ public class RSA2048Util
         try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
         {
             KeyStore privateKeyStore = KeyStore.getInstance("JKS");
-            privateKeyStore.load(inputStream, "Lambda@@65535$$".toCharArray());
+            privateKeyStore.load(inputStream, P);
             Certificate certificate = privateKeyStore.getCertificate("crazy");
             keys.put("public", certificate.getPublicKey().getEncoded());
             //return certificate.getPublicKey().getEncoded();

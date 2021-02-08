@@ -3,7 +3,9 @@ package com.yk.latest;
 import com.yk.mysql.DruidConnection;
 import com.yk.rsa.RSA2048Util;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.sql.DataSource;
+import java.security.InvalidKeyException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,9 +23,10 @@ public class DownloadTypeOption {
             ps.setString(1, RSA2048Util.encrypt(latestUrl));
             ps.setString(2, type);
             ps.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        finally {
             DruidConnection.close(conn, ps, rs);
         }
     }
