@@ -10,6 +10,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -29,16 +30,16 @@ import static com.yk.util.Constants.*;
 public class RSA2048Util
 {
     private static Logger logger = LoggerFactory.getLogger("RSA");
-
+    
     private static Map<String, byte[]> keys = new ConcurrentHashMap<>();
-
+    
     public static synchronized byte[] getPrivateKey()
     {
         if (keys.containsKey("private") && null != keys.get("private"))
         {
             return keys.get("private");
         }
-
+        
         InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks");
         try
         {
@@ -48,30 +49,25 @@ public class RSA2048Util
             Key key = privateKeyStore.getKey(ALIAS, CommonConfig.getInstance().getRootJKSPwd().toCharArray());
             keys.put("private", key.getEncoded());
             return key.getEncoded();
-        }
-        catch (KeyStoreException e)
+        } catch (KeyStoreException e)
         {
             logger.error("KeyStoreException getPrivateKey error", e);
-        }
-        catch (CertificateException e)
+        } catch (CertificateException e)
         {
             logger.error("CertificateException getPrivateKey error", e);
-        }
-        catch (NoSuchAlgorithmException e)
+        } catch (NoSuchAlgorithmException e)
         {
             logger.error("NoSuchAlgorithmException getPrivateKey error", e);
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             logger.error("IOException getPrivateKey error", e);
-        }
-        catch (UnrecoverableKeyException e)
+        } catch (UnrecoverableKeyException e)
         {
             e.printStackTrace();
         }
         return null;
     }
-
+    
     public static synchronized byte[] getPublicKey()
     {
         if (keys.containsKey("public") && null != keys.get("public"))
@@ -93,14 +89,22 @@ public class RSA2048Util
             System.out.println(java.util.Base64.getEncoder().encodeToString(bout.toByteArray()));*/
             keys.put("public", crt.getPublicKey().getEncoded());
             return crt.getPublicKey().getEncoded();
-        }
-        catch (CertificateException e)
+        } catch (CertificateException e)
         {
             logger.error("CertificateException getPublicKey error", e);
         }
         return null;
     }
-
+    
+    public static ByteBuffer decrypt(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException
+    {
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(getPrivateKey());
+        PrivateKey privateKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePrivate(pkcs8EncodedKeySpec);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return ByteBuffer.wrap(cipher.doFinal(bytes));
+    }
+    
     public static String decrypt(String str)
     {
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(getPrivateKey());
@@ -111,41 +115,44 @@ public class RSA2048Util
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
             String outStr = new String(cipher.doFinal(Base64.decodeBase64(str.getBytes("UTF-8"))));
             return outStr;
-        }
-        catch (InvalidKeySpecException e)
+        } catch (InvalidKeySpecException e)
         {
             e.printStackTrace();
-        }
-        catch (NoSuchAlgorithmException e)
+        } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
-        }
-        catch (NoSuchPaddingException e)
+        } catch (NoSuchPaddingException e)
         {
             e.printStackTrace();
-        }
-        catch (IllegalBlockSizeException e)
+        } catch (IllegalBlockSizeException e)
         {
             e.printStackTrace();
-        }
-        catch (BadPaddingException e)
+        } catch (BadPaddingException e)
         {
             e.printStackTrace();
-        }
-        catch (InvalidKeyException e)
+        } catch (InvalidKeyException e)
         {
             e.printStackTrace();
-        }
-        catch (UnsupportedEncodingException e)
+        } catch (UnsupportedEncodingException e)
         {
             e.printStackTrace();
         }
         return null;
     }
-
+    
+    public static ByteBuffer encrypt(byte[] bytes) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException
+    {
+        
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(getPublicKey());
+        PublicKey publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(x509EncodedKeySpec);
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return ByteBuffer.wrap(cipher.doFinal(bytes));
+    }
+    
     public static String encrypt(String str)
     {
-
+        
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(getPublicKey());
         try
         {
@@ -154,38 +161,31 @@ public class RSA2048Util
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             String outStr = Base64.encodeBase64String(cipher.doFinal(str.getBytes("UTF-8")));
             return outStr;
-        }
-        catch (InvalidKeySpecException e)
+        } catch (InvalidKeySpecException e)
         {
             e.printStackTrace();
-        }
-        catch (NoSuchAlgorithmException e)
+        } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
-        }
-        catch (NoSuchPaddingException e)
+        } catch (NoSuchPaddingException e)
         {
             e.printStackTrace();
-        }
-        catch (IllegalBlockSizeException e)
+        } catch (IllegalBlockSizeException e)
         {
             e.printStackTrace();
-        }
-        catch (BadPaddingException e)
+        } catch (BadPaddingException e)
         {
             e.printStackTrace();
-        }
-        catch (InvalidKeyException e)
+        } catch (InvalidKeyException e)
         {
             e.printStackTrace();
-        }
-        catch (UnsupportedEncodingException e)
+        } catch (UnsupportedEncodingException e)
         {
             e.printStackTrace();
         }
         return null;
     }
-
+    
     public static void main(String[] args)
     {
         System.out.println(encrypt(""));
