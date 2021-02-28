@@ -2,6 +2,7 @@ package com.yk.rsa;
 
 import com.yk.config.CommonConfig;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,10 @@ public class RSA2048Util
 
     private static final String TYPE = "JKS";
 
+    private static final String PRI = "rsa.jks";
+
+    private static final String PUB = "rsa.crt";
+
     public static synchronized byte[] getPrivateKey() throws IOException,
             KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException
     {
@@ -53,7 +58,7 @@ public class RSA2048Util
         {
             return keys.get("private");
         }
-        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
+        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI))
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, P);
@@ -69,19 +74,20 @@ public class RSA2048Util
         {
             return keys.get("public");
         }
-        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
+        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI);
+             InputStream pub = RSA2048Util.class.getClassLoader().getResourceAsStream(PUB))
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, P);
             Certificate certificate = privateKeyStore.getCertificate(ALISA);
             keys.put("public", certificate.getPublicKey().getEncoded());
-            //return certificate.getPublicKey().getEncoded();
-        }
-        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.crt"))
-        {
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+//            byte b1[] = certificate.getPublicKey().getEncoded();
+
+            /*CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             Certificate crt = certificateFactory.generateCertificate(inputStream);
-            return crt.getPublicKey().getEncoded();
+            byte b2[] = crt.getPublicKey().getEncoded();
+            boolean b = ByteUtils.equals(b1, b2);*/
+            return certificate.getPublicKey().getEncoded();
         }
     }
 
