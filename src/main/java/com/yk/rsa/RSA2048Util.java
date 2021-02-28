@@ -72,19 +72,20 @@ public class RSA2048Util
         {
             return keys.get("public");
         }
-        try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI);
+        try (InputStream pri = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI);
              InputStream pub = RSA2048Util.class.getClassLoader().getResourceAsStream(PUB))
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
-            privateKeyStore.load(inputStream, CommonConfig.getInstance().getStorepasswd());
+            privateKeyStore.load(pri, CommonConfig.getInstance().getStorepasswd());
             Certificate certificate = privateKeyStore.getCertificate(ALISA);
             keys.put("public", certificate.getPublicKey().getEncoded());
             byte pubEncoded[] = certificate.getPublicKey().getEncoded();
 
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-            Certificate crt = certificateFactory.generateCertificate(inputStream);
+            Certificate crt = certificateFactory.generateCertificate(pub);
             byte b2[] = crt.getPublicKey().getEncoded();
             boolean b = ByteUtils.equals(pubEncoded, b2);
+            keys.put("public", pubEncoded);
             return pubEncoded;
         }
     }

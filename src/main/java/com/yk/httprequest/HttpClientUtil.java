@@ -387,7 +387,7 @@ public class HttpClientUtil
         {
             this.fileName = fileName;
             this.dir = dir.replaceAll(Constants.REGEX_FILE_NAME, "");
-            targetDir = CommonConfig.getInstance().getRootDir() + File.separator + dir + File.separator;
+            targetDir = CommonConfig.getInstance().getFileSaveDir() + File.separator + dir + File.separator;
             if (!new File(targetDir).exists()) {
                 new File(targetDir).mkdirs();
             }

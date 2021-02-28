@@ -29,7 +29,7 @@ public class ProblemChecker implements Runnable
         while (true)
         {
             long _start = System.currentTimeMillis();
-            File files = new File(CommonConfig.getInstance().getRootDir());
+            File files = new File(CommonConfig.getInstance().getFileSaveDir());
             File list[] = files.listFiles(file -> file.exists() && file.length() < 1024 * 1024);
             Arrays.asList(list).stream().forEach((f) -> {
                 if (f.getName().indexOf(DOWNLOAD_FILENAME) == -1 || f.getName().lastIndexOf(".") == -1 || f.getName().indexOf(DOWNLOAD_FILENAME) >= f.getName().lastIndexOf("."))
