@@ -41,8 +41,6 @@ public class RSA2048Util
 
     private static Map<String, byte[]> keys = new ConcurrentHashMap<>();
 
-    private static final char[] P = CommonConfig.getInstance().getRootJKSPwd().toCharArray();
-
     private static final String ALISA = "crazy";
 
     private static final String TYPE = "JKS";
@@ -61,8 +59,8 @@ public class RSA2048Util
         try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI))
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
-            privateKeyStore.load(inputStream, P);
-            PrivateKey key = (PrivateKey) privateKeyStore.getKey(ALISA, P);
+            privateKeyStore.load(inputStream, CommonConfig.getInstance().getStorepasswd());
+            PrivateKey key = (PrivateKey) privateKeyStore.getKey(ALISA, CommonConfig.getInstance().getKeypasswd());
             keys.put("private", key.getEncoded());
             return key.getEncoded();
         }
@@ -78,16 +76,16 @@ public class RSA2048Util
              InputStream pub = RSA2048Util.class.getClassLoader().getResourceAsStream(PUB))
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
-            privateKeyStore.load(inputStream, P);
+            privateKeyStore.load(inputStream, CommonConfig.getInstance().getStorepasswd());
             Certificate certificate = privateKeyStore.getCertificate(ALISA);
             keys.put("public", certificate.getPublicKey().getEncoded());
-//            byte b1[] = certificate.getPublicKey().getEncoded();
+            byte pubEncoded[] = certificate.getPublicKey().getEncoded();
 
-            /*CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             Certificate crt = certificateFactory.generateCertificate(inputStream);
             byte b2[] = crt.getPublicKey().getEncoded();
-            boolean b = ByteUtils.equals(b1, b2);*/
-            return certificate.getPublicKey().getEncoded();
+            boolean b = ByteUtils.equals(pubEncoded, b2);
+            return pubEncoded;
         }
     }
 

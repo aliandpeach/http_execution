@@ -15,9 +15,11 @@ public class CommonConfig
 {
     private Logger logger = LoggerFactory.getLogger("common_config");
 
-    private volatile String rootDir;
+    private volatile String fileSaveDir;
 
-    private volatile String rootJKSPwd;
+    private transient volatile char[] storepasswd;
+
+    private transient volatile char[] keypasswd;
 
     private volatile Properties druidProperties;
 
@@ -73,14 +75,16 @@ public class CommonConfig
             {
                 conf.load(new FileInputStream(confFile));
             }
-            rootDir = conf.getProperty("f.save.dir");
-            File dir = new File(rootDir);
+            fileSaveDir = conf.getProperty("f.save.dir");
+            File dir = new File(fileSaveDir);
             if (!dir.exists())
             {
                 boolean flag = dir.mkdirs();
                 logger.info("dir.mkdirs result : " + flag);
             }
-            rootJKSPwd = conf.getProperty("rsa.keystore.pwd");
+            storepasswd = conf.getProperty("rsa.storepasswd.pwd").toCharArray();
+
+            keypasswd = conf.getProperty("rsa.keypasswd.pwd").toCharArray();
         }
         catch (IOException e)
         {
@@ -122,18 +126,23 @@ public class CommonConfig
         public static CommonConfig INSTANCE = new CommonConfig();
     }
 
-    public String getRootDir()
-    {
-        return rootDir;
-    }
-
-    public String getRootJKSPwd()
-    {
-        return rootJKSPwd;
-    }
-
     public Properties getDruidProperties()
     {
         return druidProperties;
+    }
+
+    public String getFileSaveDir()
+    {
+        return fileSaveDir;
+    }
+
+    public char[] getStorepasswd()
+    {
+        return storepasswd;
+    }
+
+    public char[] getKeypasswd()
+    {
+        return keypasswd;
     }
 }
