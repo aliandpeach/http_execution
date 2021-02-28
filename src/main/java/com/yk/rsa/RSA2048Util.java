@@ -37,12 +37,16 @@ import static com.yk.util.Constants.RSA_ALGORITHM;
 public class RSA2048Util
 {
     private static Logger logger = LoggerFactory.getLogger(RSA_ALGORITHM);
-    
+
     private static Map<String, byte[]> keys = new ConcurrentHashMap<>();
-    
+
     private static final char[] P = CommonConfig.getInstance().getRootJKSPwd().toCharArray();
-    
-    private static synchronized byte[] getPrivateKey() throws IOException,
+
+    private static final String ALISA = "crazy";
+
+    private static final String TYPE = "JKS";
+
+    public static synchronized byte[] getPrivateKey() throws IOException,
             KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException
     {
         if (keys.containsKey("private") && null != keys.get("private"))
@@ -51,14 +55,14 @@ public class RSA2048Util
         }
         try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
         {
-            KeyStore privateKeyStore = KeyStore.getInstance("JKS");
+            KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, P);
-            PrivateKey key = (PrivateKey) privateKeyStore.getKey("crazy", "Lambda@@65535$$".toCharArray());
+            PrivateKey key = (PrivateKey) privateKeyStore.getKey(ALISA, P);
             keys.put("private", key.getEncoded());
             return key.getEncoded();
         }
     }
-    
+
     public static synchronized byte[] getPublicKey() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException
     {
         if (keys.containsKey("public") && null != keys.get("public"))
@@ -67,9 +71,9 @@ public class RSA2048Util
         }
         try (InputStream inputStream = RSA2048Util.class.getClassLoader().getResourceAsStream("root.jks"))
         {
-            KeyStore privateKeyStore = KeyStore.getInstance("JKS");
+            KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, P);
-            Certificate certificate = privateKeyStore.getCertificate("crazy");
+            Certificate certificate = privateKeyStore.getCertificate(ALISA);
             keys.put("public", certificate.getPublicKey().getEncoded());
             //return certificate.getPublicKey().getEncoded();
         }
@@ -80,7 +84,7 @@ public class RSA2048Util
             return crt.getPublicKey().getEncoded();
         }
     }
-    
+
     public static String decrypt(String str) throws UnrecoverableKeyException,
             CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException,
             InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException
@@ -92,13 +96,13 @@ public class RSA2048Util
         String outStr = new String(cipher.doFinal(Base64.decodeBase64(str.getBytes("UTF-8"))));
         return outStr;
     }
-    
+
     public static String encrypt(String str) throws UnrecoverableKeyException,
             CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException
     {
-        
+
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(getPublicKey());
         PublicKey publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(x509EncodedKeySpec);
         Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
@@ -106,25 +110,7 @@ public class RSA2048Util
         String outStr = Base64.encodeBase64String(cipher.doFinal(str.getBytes("UTF-8")));
         return outStr;
     }
-    
-    /*public static String decrypt(String str)
-    {
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(getPrivateKey());
-        try
-        {
-            PrivateKey privateKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePrivate(pkcs8EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            String outStr = new String(cipher.doFinal(Base64.decodeBase64(str.getBytes("UTF-8"))));
-            return outStr;
-        }
-        catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException | InvalidKeyException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }*/
-    
+
     public static ByteBuffer decrypt(byte[] bytes) throws NoSuchAlgorithmException, InvalidKeySpecException,
             NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException,
             UnrecoverableKeyException, CertificateException, KeyStoreException, IOException
@@ -135,39 +121,19 @@ public class RSA2048Util
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return ByteBuffer.wrap(cipher.doFinal(bytes));
     }
-    
+
     public static ByteBuffer encrypt(byte[] bytes) throws NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException,
             UnrecoverableKeyException, CertificateException, KeyStoreException, IOException
     {
-        
+
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(getPublicKey());
         PublicKey publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(x509EncodedKeySpec);
         Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         return ByteBuffer.wrap(cipher.doFinal(bytes));
     }
-    
-    /*public static String encrypt(String str) throws NoSuchPaddingException, InvalidKeyException
-    {
-        
-        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(getPublicKey());
-        try
-        {
-            PublicKey publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(x509EncodedKeySpec);
-            Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            int blockSize = cipher.getBlockSize();
-            String outStr = Base64.encodeBase64String(cipher.doFinal(str.getBytes("UTF-8")));
-            return outStr;
-        }
-        catch (InvalidKeySpecException | UnsupportedEncodingException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }*/
-    
+
     public static void main(String[] args)
     {
     }
