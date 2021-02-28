@@ -39,7 +39,7 @@ public class RSA2048Util
 {
     private static Logger logger = LoggerFactory.getLogger(RSA_ALGORITHM);
 
-    private static Map<String, byte[]> keys = new ConcurrentHashMap<>();
+    private transient static Map<String, byte[]> keys = new ConcurrentHashMap<>();
 
     private static final String ALISA = "crazy";
 

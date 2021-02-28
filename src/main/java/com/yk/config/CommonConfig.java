@@ -5,6 +5,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -82,9 +83,33 @@ public class CommonConfig
                 boolean flag = dir.mkdirs();
                 logger.info("dir.mkdirs result : " + flag);
             }
-            storepasswd = conf.getProperty("rsa.storepasswd.pwd").toCharArray();
+            String storepasswdString = conf.getProperty("rsa.storepasswd.pwd");
+            if (null == storepasswdString || storepasswdString.trim().length() == 0)
+            {
+                JPasswordField pwdField = new JPasswordField();
+                Object[] message = {"请输入秘钥库口令：", pwdField};
+                int res = JOptionPane.showConfirmDialog(null, message, " ", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                storepasswd = pwdField.getPassword();
+            }
+            else
+            {
+                storepasswd = storepasswdString.toCharArray();
+            }
 
-            keypasswd = conf.getProperty("rsa.keypasswd.pwd").toCharArray();
+
+            String keypasswdString = conf.getProperty("rsa.keypasswd.pwd");
+            if (null == keypasswdString || keypasswdString.trim().length() == 0)
+            {
+                JPasswordField pwdField = new JPasswordField();
+                Object[] message = {"请输入私钥口令: ", pwdField};
+                int res = JOptionPane.showConfirmDialog(null, message, " ", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                keypasswd = pwdField.getPassword();
+            }
+            else
+            {
+                keypasswd = keypasswdString.toCharArray();
+            }
+            logger.debug("");
         }
         catch (IOException e)
         {
