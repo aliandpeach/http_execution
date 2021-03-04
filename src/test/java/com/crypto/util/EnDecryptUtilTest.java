@@ -25,9 +25,9 @@ public class EnDecryptUtilTest
     @Test
     public void fileEncryptToHex() throws Exception
     {
-        String srcf = "C:\\Users\\Spinfo\\Desktop\\test\\lombok.zip";
-        String tof = "C:\\Users\\Spinfo\\Desktop\\test\\lombok_encrypt.zip";
-        String toHexf = "C:\\Users\\Spinfo\\Desktop\\test\\lombok_encrypt_hex.zip";
+        String srcf = "C:\\Users\\xxxx\\Desktop\\test\\lombok.zip";
+        String tof = "C:\\Users\\xxxx\\Desktop\\test\\lombok_encrypt.zip";
+        String toHexf = "C:\\Users\\xxxx\\Desktop\\test\\lombok_encrypt_hex.zip";
         
         new EnDecryptUtil().fileEncryptToHex(srcf, tof, toHexf, 245);
     }
@@ -36,8 +36,8 @@ public class EnDecryptUtilTest
     public void hexDecryptToFile() throws IOException, UnrecoverableKeyException, CertificateException,
             NoSuchAlgorithmException, KeyStoreException
     {
-        String srcHexf = "C:\\Users\\Spinfo\\Desktop\\test\\record__hex.txt";
-        String tof = "C:\\Users\\Spinfo\\Desktop\\test\\record__hex_src.txt";
+        String srcHexf = "C:\\Users\\xxxx\\Desktop\\test\\record__hex.txt";
+        String tof = "C:\\Users\\xxxx\\Desktop\\test\\record__hex_src.txt";
         new EnDecryptUtil().hexDecryptToFile(srcHexf, tof, 256);
     }
     
@@ -45,8 +45,8 @@ public class EnDecryptUtilTest
     @Test
     public void fileEncryptToHex1() throws Exception
     {
-        String srcf = "C:\\Users\\Spinfo\\Desktop\\test\\lombok.zip";
-        String toHexf = "C:\\Users\\Spinfo\\Desktop\\test\\lombok_encrypt_hex.zip";
+        String srcf = "C:\\Users\\xxxx\\Desktop\\test\\lombok.zip";
+        String toHexf = "C:\\Users\\xxxx\\Desktop\\test\\lombok_encrypt_hex.zip";
         
         new EnDecryptUtil().fileEncryptToHex(srcf, toHexf, 245);
     }
@@ -54,8 +54,8 @@ public class EnDecryptUtilTest
     @Test
     public void hexDecryptToFile1() throws Exception
     {
-        String srcHexf = "C:\\Users\\Spinfo\\Desktop\\test\\lombok_encrypt_hex.zip";
-        String tof = "C:\\Users\\Spinfo\\Desktop\\test\\lombok_decrypt.zip";
+        String srcHexf = "C:\\Users\\xxxx\\Desktop\\test\\lombok_encrypt_hex.zip";
+        String tof = "C:\\Users\\xxxx\\Desktop\\test\\lombok_decrypt.zip";
         new EnDecryptUtil().hexDecryptToFile(srcHexf, tof);
     }
     
@@ -64,7 +64,7 @@ public class EnDecryptUtilTest
             NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, BadPaddingException,
             NoSuchPaddingException, IllegalBlockSizeException, InvalidKeyException
     {
-        new EnDecryptUtil().decrypt("C:\\Users\\Spinfo\\Desktop\\test");
+        new EnDecryptUtil().decrypt("C:\\Users\\xxxx\\Desktop\\test");
     }
     
     @Test
@@ -72,12 +72,12 @@ public class EnDecryptUtilTest
             NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, BadPaddingException,
             NoSuchPaddingException, IllegalBlockSizeException, InvalidKeyException
     {
-        new EnDecryptUtil().encrypt("C:\\Users\\Spinfo\\Desktop\\test", false);
+        new EnDecryptUtil().encrypt("C:\\Users\\xxxx\\Desktop\\test", false);
     }
     
     @Test
     public void copy() throws IOException
     {
-        new FileUtil().copy("C:\\Users\\Spinfo\\Desktop\\test", "C:\\Users\\Spinfo\\Desktop\\test");
+        new FileUtil().copy("C:\\Users\\xxxx\\Desktop\\test", "C:\\Users\\xxxx\\Desktop\\test");
     }
 }
