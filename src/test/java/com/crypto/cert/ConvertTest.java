@@ -1,18 +1,30 @@
 package com.crypto.cert;
 
 import cn.hutool.core.io.resource.ClassPathResource;
-import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import com.sun.crypto.provider.AESKeyGenerator;
 import org.junit.Test;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.Provider;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
@@ -45,10 +57,11 @@ public class ConvertTest
         PrivateKey key1 = KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec);
         boolean boo = key1.equals(key); //true
         boo = Arrays.equals(encodedKey, bb);//true
-    
-        //base64KeyString 是PKCS8不加密的格式 相当于转换成pkcs12后使用命令：
+        
+        // base64KeyString 是PKCS8不加密的格式 相当于转换成pkcs12后使用命令：
         // openssl pkcs12 -nocerts -nodes -in test.p12 -out test-key.pem  //该命令生成-----BEGIN PRIVATE KEY-----
-        // openssl pkcs12 -nocerts -in test.p12 -out test-key.pem         //该命令生成-----BEGIN ENCRYPTED PRIVATE KEY-----
+        // openssl pkcs12 -nocerts -in test.p12 -out test-key.pem         //该命令生成-----BEGIN ENCRYPTED PRIVATE KEY----- 默认是des加密
+        // 也可以指定为 -aes256 -des3
         String base64KeyString = Base64.getEncoder().encodeToString(encodedKey);
         
         System.out.println();
@@ -92,39 +105,300 @@ public class ConvertTest
     
     
     /**
-     * -----BEGIN ENCRYPTED PRIVATE KEY-----
-     * 使用PKCS8EncodedKeySpec去加载
+     * openssl pkcs12 -nocerts -des -in test.p12 -out test-key.pem
+     * 由上述命令提取的私钥默认加密
+     * <p>
+     * 测试加载 --- 失败
      */
     @Test
-    public void testLoadPKCS8Encrypt(){
-        String PKCS8Encrypt = "MIIFHDBOBgkqhkiG9w0BBQ0wQTApBgkqhkiG9w0BBQwwHAQIW5pjs6k/TfcCAggA\n" +
-                "MAwGCCqGSIb3DQIJBQAwFAYIKoZIhvcNAwcECOnlK7pFBjFXBIIEyHCc3KIfUwBn\n" +
-                "nkfBaTeU2U5Y0Jmq7XdlIArLUIEgjwzkbUKIjj67N89PXFUjcIxL2rzfcbJ7rJYy\n" +
-                "pth2U1y9qPQu6gw0JJPVs0WDLYiWocQ5PjoxFeTDm2JIMT029deNsHHA+LVjAeaf\n" +
-                "luTmZGjf9rCZkqjV3xd3r0JOzVs7FOc8adyG21sugRonUQ5elxz+IZ1YB9a30AbD\n" +
-                "sNPZQu6/9UQzZPu3tSjkauEjGIDpyVqlcyVSwCSLjecJZGtGrbW4vGYcuJQCK3vd\n" +
-                "KRtWUOE+AoVtZisQ9YYdTMXex3zbZwhwv/mo29zpcqf4e2GI8ip4uzyGva4EQS5+\n" +
-                "GRqPcsSxCX7RY2XbDX2tj7s5MNNK7yC2vGkx/widQWVWbwn0kO73qw9JyLX+zgUf\n" +
-                "bMxfsd56b/MFtCZazBoJWHT9AU2C0ydrKtPRJvE4uplO5D42K3OgJDLpBBC4AP6S\n" +
-                "6CI8a9HMklePSuGgKGxieUoD0gt4/PAlk0dLKnjYErriy41vOiirUh2corIA0ZKL\n" +
-                "ZOqx9Lv7ZnFQ38KC1mQdO6G/JOTOZ5Hb4TWdz/Z0j82S0szOZgragLhHTRfnFgBU\n" +
-                "91brfObmr+o1Vru7dsN4wsKSW8298JKKNH6Vy/vIZMPU4WEs5RChMuqowyiGsISG\n" +
-                "dSQtFJIliNDuZtFF0Dkj/HvXW0Tx+4IFppkglPbl0VKS8Hbh7QW+AJ07Dzk8/+pi\n" +
-                "7fLGOnVyZd2+KwRF47YWBPB2TbFyTUFp8SzlY0ejNp8zUlBsi2wmscllwpSdGy/0\n" +
-                "dLiMmbFc/1pYr1n+nmfjcSFcrdX1ozNie/6MNBHSbuPYIJF10T66HA3ZvDFYcAIz\n" +
-                "uTFykguZn2xglKLhQdKtQlMqgLUrKjrsxENGsoWayjpsByR7X1oHN641MI3W8y9Z\n" +
-                "Zs8Obl9IhJPSaeS/ukNQWJi9xO/fkblThbkjhl5MAQ9dkIndaQCG8MPEzj45RD6I\n" +
-                "DpuBAdTUj6Ejvy9ZAocqz6L4PPwwch4XntQm37MG9eXyELIwYGlfNaxLgbOmOnBT\n" +
-                "RCvgC4Z7S/Nx6F0fj7voZ7zF5qBEPzKbW2HorTzJwzMLJ1FCuI9LYNdAsURPAUIP\n" +
-                "A04pM8S54SDJqIExhs7Fwvg8ONRhCwkJxYyHRwTjeegpQERXneLP3w6dCEA69jAv\n" +
-                "DRQUG+0exE37PS8lkS6dutF4VDAHDYqhd/kSX30oaKeM+qC3GGPDpOTyHcOetO9v\n" +
-                "Xh/KphdvOoDg2Et8rOrOx1KsYth9L4xVf9aDXk1T/yd3zkGc1XKw70UEn35xZEeF\n" +
-                "VCmhbuLUgw4pInsAptNLezXZEtvsBz4YdzPA5i3oHdJqc8l2t7zDeTeT2uX//0LJ\n" +
-                "kCQQ15xNA9ys986JMncLeG5yAskOQGq8Wv63qbIJmQRoT7XVYc4imJOxYunWm7hJ\n" +
-                "KXwtGnL7DSaCxLJ5OL1eNMF4Ll9JQb/yqq0dLOCK5VeFmVZ/pjsBLW3Kbml1N8AE\n" +
-                "hkUWuca/QSX4GePtt/pIvgcz6tDU5Rv39Y3B3eoqTYby4p0LHTElzDUnYT1qz1ZX\n" +
-                "CTrHSLK4wlp0P+g2FNcoj9qa6UZH+iKuoSmplCK+w6r3vCvhh9W2X0fvnXfDUxrd\n" +
-                "4dMkh5tbHb+VKg1OgBoclA==";
+    public void testLoadPKCS8Encrypt() throws Exception
+    {
+        String PKCS8Encrypt = "MIIFLTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQInJV+Rs2j0fkCAggA\n" +
+                "MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAEqBBDjI/rCzVxyrtqMh+fNbvaTBIIE\n" +
+                "0C6HS+BZdVDkVPFe2YxZAGisNQOG8rkUWjLtRt8Z2KnsZ/94oSDy90QgWWCRIxvd\n" +
+                "OgOPN6HHHnvDrVkujURdFq8mT+qnK4XAyxx88Qi/IUnGmzC92X7/TCYgZ3+qw8/0\n" +
+                "6UoAGUwVjI3uADqwUlB/pZV3RLAAz9HrJU3ys4iQu0MvrOCoqpGXHQzeBRni1oCo\n" +
+                "qE9D/9iLRLM2AuBci3AUTfawfze6VF//C2dWspBcIFzkQA+BAaLpQavwtkgoJcxU\n" +
+                "VSo2laCwfGhLNYy58FqfOC/iNzBdDt2s3ArzGTTRS2eXP916TsZZdbLIaiirAsI8\n" +
+                "S0dQa8YpcwAszEaxd7/UNDUte8bXEx86XY7K2fRt2p4xhLz3mMiKtvLZydFmDh9n\n" +
+                "CDwKAtzHbANTkTQCWmL18J3FggDiSpW/7gbspNX14ZE8BM9QBrRzQ7BFnNec2XCb\n" +
+                "Gpsl9HsYdG3Hq93g3CRYoX6TryJhmqKFi691LK8RNsuWPCU83YOhCjLyHRxgVHf8\n" +
+                "gfpDY9NUGagPumeRKMSjB/1mYPwjfvFdJUDS8JJly4jOjRGGwggtLP1kZ7tkYHcN\n" +
+                "X3of3cuv3iCvRgoIc0VDFJUsKPv7I9wUdW8izmFF+30FUp4Ku7S1YC+J9ZQnIVqE\n" +
+                "KyLxgkSgKUD4lbnjCtVKspWTAJWuA8E9q+VPfUBfJsDOJ53ZaHorpbrz+MLg6vGV\n" +
+                "dHwWupvqLCXyDYwguRElenCileLeYwrMR4L8EULg3X1la696dUaUxOSXKwPuBSS/\n" +
+                "QcUZcG7hG7kdKc+9gHj3TRFRgl8/T4Wsl4zWG03tINyoLvN75h5gxqWmWlmfFDPO\n" +
+                "+gRbrs/oiKo9krgBZGFGf7feArday11mNNPLqCPnRPRFFQXy6cn3PKyBYdm0Dqd5\n" +
+                "JHpY6t2mgLvAAS7wq2HhC2QmTyXgLhqRiMIrS28WSemB2eYvKWYosmg0/w83z6/u\n" +
+                "UN1pEEjyqS0fdcWZAC5D9X1YCaut+UxaX09OtWdiRvS9ALCe/U9iRZnCizIxCOOz\n" +
+                "MKJ/5FDNII0QSqjMyXtFtcELTbZrQNGY/XuSIavG6V8IGQUSdUS5D2mJ+7Y1b0Qe\n" +
+                "S+3xNNGlY8DkwBoYQTqDmih0Q4O9N0K/hOtJe8Ee5RrWOv4Bw+SmZ6h6KzR+Sn3f\n" +
+                "LgHrBvpAdPk1Wl/iiM4lXtpMJ+qgK/S89ERsaJdslo5QntYIT/Emy14cWX/1K+4/\n" +
+                "0ZKWm3YDBPockJobiLr40g6xzWGNTN1CLAHOqWjXtVeRvw4by65pgrtUZjK57fgG\n" +
+                "FKQcHp2iw4EBPisZCWuRxAxIn0bRqaAWMsGiY86DtdM0t4OUWrtTRmrvBUg+MZAV\n" +
+                "sWVcf16FlISK0SkaaSstMO7w/RLlM4be9nq8RhWEtTMBKiPfjQbJSf70SUG2dl8G\n" +
+                "avkg2LGtA1WXPSHf2oFkVTmaWNI7LmnvDEaAoQA+LXrKN3mhIUstoXtJna3KM2OL\n" +
+                "K91G1mlVrpXBtVIryO4VPmhRW1A3yJRyTIR7zNZpI/ciQhfhh9K0miQcycvFamc8\n" +
+                "K1cePfHyJ2rYsS/hC4E0wUEnMnHUd/sYrDmjcRYiBNg1uxhZFJqUrN9PCXbrIYjs\n" +
+                "BcmGRAAUyl6ILRab3BWFCz65s6s1VmDIQa1zRj5PocCA";
         PKCS8Encrypt = PKCS8Encrypt.replace("\n", "");
+        byte[] debytes = Base64.getDecoder().decode(PKCS8Encrypt);
+        byte[] temp = new byte[debytes.length % 16 == 0 ? debytes.length : (debytes.length / 16 + 1) * 16];
+        System.arraycopy(debytes, 0, temp, 0, debytes.length);
+    
+        byte []pwd = "Admin@123456".getBytes();
+        byte []pwdtemp = new byte[32];
+        System.arraycopy(pwd, 0, pwdtemp, pwdtemp.length - pwd.length, pwd.length);
+        SecretKey secretKey = new SecretKeySpec(pwdtemp, "AES");
+        Cipher ciphere = Cipher.getInstance("AES");
+        ciphere.init(Cipher.DECRYPT_MODE, secretKey);
+        byte []ret = ciphere.doFinal(temp);
+        System.out.println();
+    }
+    
+    /**
+     * des加密
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDESEncrypt() throws Exception
+    {
+        //初始化盐 "MY_KEY" 作为种子，生成的盐不变
+        SecureRandom random = new SecureRandom("MY_KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        IvParameterSpec iv = new IvParameterSpec(salt);
+        // 根据源码 这里的字符串转换的byte[]无论多长， 只会取byte[8]
+        DESKeySpec dks = new DESKeySpec("11111111".getBytes());
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+        SecretKey secretKey = keyFactory.generateSecret(dks);
+        Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+        byte[] tgtBytes = cipher.doFinal("测试测试测试".getBytes(StandardCharsets.UTF_8));
+        System.out.println("encrypt: " + Base64.getEncoder().encodeToString(tgtBytes));
+    }
+    
+    /**
+     * des解密
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDESDecrypt() throws Exception
+    {
+        byte[] src = Base64.getDecoder().decode("PfJTkKyelH4p+q9mth599g8vi5MJF0fJ");
+        
+        //初始化盐 "MY_KEY" 作为种子，生成的盐不变
+        SecureRandom random = new SecureRandom("MY_KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        IvParameterSpec iv = new IvParameterSpec(salt);
+        // 根据源码 这里的字符串转换的byte[]无论多长， 只会取byte[8]
+        DESKeySpec dks = new DESKeySpec("11111111".getBytes());
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+        SecretKey secretKey = keyFactory.generateSecret(dks);
+        Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
+        byte[] debytes = cipher.doFinal(src);
+        System.out.println("decrypt: " + new String(debytes, StandardCharsets.UTF_8));
+    }
+    
+    /**
+     * 3des 加密
+     */
+    @Test
+    public void test3DESEncrypt() throws Exception
+    {
+        //初始化盐 "MY_KEY" 作为种子，生成的盐不变
+        SecureRandom random = new SecureRandom("MY_KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        IvParameterSpec iv = new IvParameterSpec(salt);
+        // 根据源码 这里的字符串转换的byte[]无论多长， 只会取byte[24]
+        DESedeKeySpec dks = new DESedeKeySpec("111111111111111111111111".getBytes());
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DESede");
+        SecretKey secretKey = keyFactory.generateSecret(dks);
+        Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] tgtBytes = cipher.doFinal("测试测试测试".getBytes(StandardCharsets.UTF_8));
+        System.out.println("encrypt: " + Base64.getEncoder().encodeToString(tgtBytes));
+    }
+    
+    /**
+     * 3des解密
+     */
+    @Test
+    public void test3DESDecrypt() throws Exception
+    {
+        byte[] src = Base64.getDecoder().decode("V8Ev798jmHjogR9Gy0W1gVZKv1yICaog");
+        
+        //初始化盐 "MY_KEY" 作为种子，生成的盐不变
+        SecureRandom random = new SecureRandom("MY_KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        IvParameterSpec iv = new IvParameterSpec(salt);
+        // 根据源码 这里的字符串转换的byte[]无论多长， 只会取byte[24]
+        DESedeKeySpec dks = new DESedeKeySpec("111111111111111111111111".getBytes());
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DESede");
+        SecretKey secretKey = keyFactory.generateSecret(dks);
+        Cipher cipher = Cipher.getInstance("DESede/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] debytes = cipher.doFinal(src);
+        System.out.println("decrypt: " + new String(debytes, StandardCharsets.UTF_8));
+    }
+    
+    /**
+     *  
+     * java6和bouncycastle支持的算法列表
+     * 算法    密钥长度    密钥长度默认值    工作模式    填充方式    备注
+     * PBEWithMD5AndDES    56    56    CBC    PKCS5Padding    java6实现
+     * PBEWithMD5AndTripeDES    112、168    168    CBC    PKCS6Padding    java7实现
+     * PBEWithSHA1AndDESede    112、168    168    CBC    PKCS7Padding    java8实现
+     * PBEWithSHA1AndRC2_40    40至1024    128    CBC    PKCS8Padding    java9实现
+     * <p>
+     * PBEWithMD5AndDES    64    64    CBC    PKCS5Padding/PKCS7Padding/ISO10126Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithMD5AndRC2    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10127Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHA1AndDES    64    64    CBC    PKCS5Padding/PKCS7Padding/ISO10128Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHA1AndRC2    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10129Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAndIDEA-CBC    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10130Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd2-KeyTripleDES-CBC    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10131Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd3-KeyTripleDES-CBC    192    192    CBC    PKCS5Padding/PKCS7Padding/ISO10132Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd128BitRC2-CBC    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10133Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd40BitRC2-CBC    40    40    CBC    PKCS5Padding/PKCS7Padding/ISO10134Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd128BitRC4    128    128    CBC    PKCS5Padding/PKCS7Padding/ISO10135Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAnd40BitRC4    40    40    CBC    PKCS5Padding/PKCS7Padding/ISO10136Padding/ZeroBytePadding    BouncyCastle实现
+     * PBEWithSHAAndTwofish-CBC    256    256    CBC    PKCS5Padding/PKCS7Padding/ISO10137Padding/ZeroBytePadding    BouncyCastle实现
+     *       
+     */
+    @Test
+    public void testPBEEncrypt() throws Exception
+    {
+        String src = "http://www.google.com";
+        //初始化盐
+        SecureRandom random = new SecureRandom("KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        //-----------口令及秘钥------------
+        String password = "Admin@123890";
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA1AndDESede");
+        SecretKey key = factory.generateSecret(pbeKeySpec);
+        //------加密处理---------
+        PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, 1024);
+        Cipher cipher = Cipher.getInstance("PBEWithSHA1AndDESede");
+        cipher.init(Cipher.ENCRYPT_MODE, key, pbeParameterSpec);
+        byte[] bytes = cipher.doFinal(src.getBytes());
+        System.out.println("jdk pbe encrypt: " + Base64.getEncoder().encodeToString(bytes));
+    }
+    @Test
+    public void testPBEDecrypt() throws Exception
+    {
+        byte[] enbytes = Base64.getDecoder().decode("asZRqkddtPiFXU7fn/I26FY2LZePerDH");
+        //初始化盐
+        SecureRandom random = new SecureRandom("KEY".getBytes());
+        byte[] salt = new byte[8];
+        random.nextBytes(salt);
+        
+        String password = "Admin@123890";
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithSHA1AndDESede");
+        SecretKey key = factory.generateSecret(pbeKeySpec);
+        
+        PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, 1024);
+        Cipher cipher = Cipher.getInstance("PBEWithSHA1AndDESede");
+        cipher.init(Cipher.DECRYPT_MODE, key, pbeParameterSpec);
+        enbytes = cipher.doFinal(enbytes);
+        System.out.println("jdk pbe decrypt: " + new String(enbytes));
+        
+    }
+    
+    @Test
+    public void testAESEncrypt() throws Exception
+    {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        // 这里的随机数种子，用于生成固定的盐值
+        SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+        byte []salt = new byte[16];
+        sr.nextBytes(salt);
+        
+        keyGenerator.init(256, sr);
+        SecretKey key = keyGenerator.generateKey();
+    
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(salt));
+        String src = "http://www.google.com";
+        byte []enbytes = cipher.doFinal(src.getBytes());
+        System.out.println("jdk aes-256 encrypt: " + Base64.getEncoder().encodeToString(enbytes));
+    }
+    @Test
+    public void testAESDecrypt() throws Exception
+    {
+        String src = "3AlXCDWfbf03e1CbOtwv4GHr3dpvXJ5fch8zoSfFLBg=";
+        
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        // 这里的随机数种子，用于生成固定的盐值
+        SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+        byte []salt = new byte[16];
+        sr.nextBytes(salt);
+        keyGenerator.init(256, sr);
+        SecretKey key = keyGenerator.generateKey();
+    
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(salt));
+        
+        byte []debytes = cipher.doFinal(Base64.getDecoder().decode(src));
+        System.out.println("jdk aes-256 decrypt: " + new String(debytes));
+    }
+    
+    /**
+     * 根据源码 不同的方式生成AES key
+     *
+     * 结果表明使用KeyGenerator 256 加上固定字符串产生的16位盐值生成的key 等同于下面的 该固定字符串产生的16位盐值，加上产生的32位密码 生成的key
+     *
+     * 不加盐值的情况下，则要简单的多， 相当于无论有无盐值，都是根据相同字符串作为种子，随机生成的32位byte密码 (32取决于init参数中的 256/8)
+     *
+     */
+    @Test
+    public void testAESEncrypt2() throws Exception
+    {
+        byte [] salt = new byte[16];
+        SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+        sr.nextBytes(salt);
+        
+        byte [] passwd = new byte[32];
+        sr.nextBytes(passwd);
+        SecretKey key = new SecretKeySpec(passwd, "AES");
+    
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(salt));
+        String src = "http://www.google.com";
+        byte []enbytes = cipher.doFinal(src.getBytes());
+        System.out.println("jdk aes-256 encrypt: " + Base64.getEncoder().encodeToString(enbytes));
+    }
+    
+    @Test
+    public void testAESDecrypt2() throws Exception
+    {
+        String src = "3AlXCDWfbf03e1CbOtwv4GHr3dpvXJ5fch8zoSfFLBg=";
+    
+        byte [] salt = new byte[16];
+        SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+        sr.nextBytes(salt);
+    
+        byte [] passwd = new byte[32];
+        sr.nextBytes(passwd);
+        SecretKey key = new SecretKeySpec(passwd, "AES");
+    
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(salt));
+        
+        byte []debytes = cipher.doFinal(Base64.getDecoder().decode(src));
+        System.out.println("jdk aes-256 decrypt: " + new String(debytes));
     }
 }
