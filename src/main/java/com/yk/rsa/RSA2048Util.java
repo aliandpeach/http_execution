@@ -2,7 +2,6 @@ package com.yk.rsa;
 
 import com.yk.config.CommonConfig;
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,9 @@ public class RSA2048Util
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, CommonConfig.getInstance().getStorepasswd());
+            CommonConfig.getInstance().setStorepasswd(null);
             PrivateKey key = (PrivateKey) privateKeyStore.getKey(ALISA, CommonConfig.getInstance().getKeypasswd());
+            CommonConfig.getInstance().setKeypasswd(null);
             keys.put("private", key.getEncoded());
             return key.getEncoded();
         }
@@ -75,16 +76,9 @@ public class RSA2048Util
         try (InputStream pri = RSA2048Util.class.getClassLoader().getResourceAsStream(PRI);
              InputStream pub = RSA2048Util.class.getClassLoader().getResourceAsStream(PUB))
         {
-            KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
-            privateKeyStore.load(pri, CommonConfig.getInstance().getStorepasswd());
-            Certificate certificate = privateKeyStore.getCertificate(ALISA);
-            keys.put("public", certificate.getPublicKey().getEncoded());
-            byte pubEncoded[] = certificate.getPublicKey().getEncoded();
-
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             Certificate crt = certificateFactory.generateCertificate(pub);
-            byte b2[] = crt.getPublicKey().getEncoded();
-            boolean b = ByteUtils.equals(pubEncoded, b2);
+            byte pubEncoded[] = crt.getPublicKey().getEncoded();
             keys.put("public", pubEncoded);
             return pubEncoded;
         }
@@ -137,9 +131,5 @@ public class RSA2048Util
         Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         return ByteBuffer.wrap(cipher.doFinal(bytes));
-    }
-
-    public static void main(String[] args)
-    {
     }
 }

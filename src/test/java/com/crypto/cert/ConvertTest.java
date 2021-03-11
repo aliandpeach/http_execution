@@ -1,7 +1,7 @@
 package com.crypto.cert;
 
 import cn.hutool.core.io.resource.ClassPathResource;
-import com.sun.crypto.provider.AESKeyGenerator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
@@ -20,7 +20,6 @@ import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -38,35 +37,35 @@ import java.util.Enumeration;
 public class ConvertTest
 {
     /**
-     * 转换keystore -> pkcs12
-     *
-     * @throws Exception
+     * JKS提取私钥 -> 格式为PKCS8
      */
     @Test
     public void convertKeystoreToPCKS12() throws Exception
     {
         KeyStore rsakeystore = KeyStore.getInstance("JKS");
-        rsakeystore.load(new FileInputStream(new ClassPathResource("rsa.jks").getFile()), "QtyyLjs.WjtbYwz$.".toCharArray());
-        PrivateKey key = (PrivateKey) rsakeystore.getKey("crazy", "RpmyBkd.YxqyRxs$.".toCharArray());
+        rsakeystore.load(new FileInputStream(new ClassPathResource("rsa.jks").getFile()), "storepasswd".toCharArray());
+        PrivateKey key = (PrivateKey) rsakeystore.getKey("crazy", "keypasswd".toCharArray());
         byte[] encodedKey = key.getEncoded();
-        /**
-         * PKCS8 不加密
-         */
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
-        byte[] bb = pkcs8EncodedKeySpec.getEncoded();
-        PrivateKey key1 = KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec);
-        boolean boo = key1.equals(key); //true
-        boo = Arrays.equals(encodedKey, bb);//true
-        
-        // base64KeyString 是PKCS8不加密的格式 相当于转换成pkcs12后使用命令：
-        // openssl pkcs12 -nocerts -nodes -in test.p12 -out test-key.pem  //该命令生成-----BEGIN PRIVATE KEY-----
-        // openssl pkcs12 -nocerts -in test.p12 -out test-key.pem         //该命令生成-----BEGIN ENCRYPTED PRIVATE KEY----- 默认是des加密
-        // 也可以指定为 -aes256 -des3
+        // 导出base64转换后的私钥
         String base64KeyString = Base64.getEncoder().encodeToString(encodedKey);
-        
         System.out.println();
         System.out.println(base64KeyString);
         System.out.println();
+    
+        // base64KeyString 是PKCS8不加密的格式 相当于转换成pkcs12后使用命令：
+        // openssl pkcs12 -nocerts -nodes -in test.p12 -out test-key.pem  //该命令生成-----BEGIN PRIVATE KEY-----
+    
+        /**
+         * 使用PKCS8去读取 encodedKey
+         */
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
+        byte[] bb = pkcs8EncodedKeySpec.getEncoded();
+        Assert.assertTrue(Arrays.equals(encodedKey, bb));//true
+    
+        PrivateKey key1 = KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec);
+        Assert.assertTrue(key1.equals(key));//true
+        
+        
         Certificate certificate = rsakeystore.getCertificate("crazy");
         byte[] encodedCer = certificate.getEncoded();
         String base64CerString = Base64.getEncoder().encodeToString(encodedCer);
@@ -74,7 +73,7 @@ public class ConvertTest
         System.out.println();
         
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-        keyManagerFactory.init(rsakeystore, "RpmyBkd.YxqyRxs$.".toCharArray());
+        keyManagerFactory.init(rsakeystore, "keypasswd".toCharArray());
         
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
         KeyStore truststore = KeyStore.getInstance("JKS");
@@ -85,75 +84,44 @@ public class ConvertTest
         
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+    }
+    
+    /**
+     * JKS导出为PKCS12
+     */
+    public void exportToPKCS12() throws Exception
+    {
+        KeyStore rsakeystore = KeyStore.getInstance("JKS");
+        rsakeystore.load(new FileInputStream(new ClassPathResource("rsa.jks").getFile()), "keystore库文件密码".toCharArray());
         
-        
-        /**
-         * 导出为PKCS12
-         */
         KeyStore pkcs12 = KeyStore.getInstance("PKCS12");
         pkcs12.load(null, null);
         Enumeration<String> aliases = rsakeystore.aliases();
         while (aliases.hasMoreElements())
         {
             String alias = aliases.nextElement();
-            PrivateKey k = (PrivateKey) rsakeystore.getKey(alias, "RpmyBkd.YxqyRxs$.".toCharArray());
+            PrivateKey k = (PrivateKey) rsakeystore.getKey(alias, "alias私钥密码".toCharArray());
             Certificate[] c = rsakeystore.getCertificateChain(alias);
-            pkcs12.setKeyEntry(alias, k, "RpmyBkd.YxqyRxs$.".toCharArray(), c);
+            pkcs12.setKeyEntry(alias, k, "alias_entry_passwd".toCharArray(), c);
         }
-        pkcs12.store(new FileOutputStream("D:\\test.p12"), "QtyyLjs.WjtbYwz$.".toCharArray());
+        pkcs12.store(new FileOutputStream("D:\\test.p12"), "P12_store_file_passwd".toCharArray());
     }
-    
     
     /**
      * openssl pkcs12 -nocerts -des -in test.p12 -out test-key.pem
+     *
+     * openssl pkcs12 -nocerts -in test.p12 -out test-key.pem
+     *
+     * 该命令生成-----BEGIN ENCRYPTED PRIVATE KEY----- 默认是des加密
+     *
+     * 也可以指定为 -aes256 -des3
+     *
      * 由上述命令提取的私钥默认加密
      * <p>
-     * 测试加载 --- 失败
      */
     @Test
     public void testLoadPKCS8Encrypt() throws Exception
     {
-        String PKCS8Encrypt = "MIIFLTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQInJV+Rs2j0fkCAggA\n" +
-                "MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAEqBBDjI/rCzVxyrtqMh+fNbvaTBIIE\n" +
-                "0C6HS+BZdVDkVPFe2YxZAGisNQOG8rkUWjLtRt8Z2KnsZ/94oSDy90QgWWCRIxvd\n" +
-                "OgOPN6HHHnvDrVkujURdFq8mT+qnK4XAyxx88Qi/IUnGmzC92X7/TCYgZ3+qw8/0\n" +
-                "6UoAGUwVjI3uADqwUlB/pZV3RLAAz9HrJU3ys4iQu0MvrOCoqpGXHQzeBRni1oCo\n" +
-                "qE9D/9iLRLM2AuBci3AUTfawfze6VF//C2dWspBcIFzkQA+BAaLpQavwtkgoJcxU\n" +
-                "VSo2laCwfGhLNYy58FqfOC/iNzBdDt2s3ArzGTTRS2eXP916TsZZdbLIaiirAsI8\n" +
-                "S0dQa8YpcwAszEaxd7/UNDUte8bXEx86XY7K2fRt2p4xhLz3mMiKtvLZydFmDh9n\n" +
-                "CDwKAtzHbANTkTQCWmL18J3FggDiSpW/7gbspNX14ZE8BM9QBrRzQ7BFnNec2XCb\n" +
-                "Gpsl9HsYdG3Hq93g3CRYoX6TryJhmqKFi691LK8RNsuWPCU83YOhCjLyHRxgVHf8\n" +
-                "gfpDY9NUGagPumeRKMSjB/1mYPwjfvFdJUDS8JJly4jOjRGGwggtLP1kZ7tkYHcN\n" +
-                "X3of3cuv3iCvRgoIc0VDFJUsKPv7I9wUdW8izmFF+30FUp4Ku7S1YC+J9ZQnIVqE\n" +
-                "KyLxgkSgKUD4lbnjCtVKspWTAJWuA8E9q+VPfUBfJsDOJ53ZaHorpbrz+MLg6vGV\n" +
-                "dHwWupvqLCXyDYwguRElenCileLeYwrMR4L8EULg3X1la696dUaUxOSXKwPuBSS/\n" +
-                "QcUZcG7hG7kdKc+9gHj3TRFRgl8/T4Wsl4zWG03tINyoLvN75h5gxqWmWlmfFDPO\n" +
-                "+gRbrs/oiKo9krgBZGFGf7feArday11mNNPLqCPnRPRFFQXy6cn3PKyBYdm0Dqd5\n" +
-                "JHpY6t2mgLvAAS7wq2HhC2QmTyXgLhqRiMIrS28WSemB2eYvKWYosmg0/w83z6/u\n" +
-                "UN1pEEjyqS0fdcWZAC5D9X1YCaut+UxaX09OtWdiRvS9ALCe/U9iRZnCizIxCOOz\n" +
-                "MKJ/5FDNII0QSqjMyXtFtcELTbZrQNGY/XuSIavG6V8IGQUSdUS5D2mJ+7Y1b0Qe\n" +
-                "S+3xNNGlY8DkwBoYQTqDmih0Q4O9N0K/hOtJe8Ee5RrWOv4Bw+SmZ6h6KzR+Sn3f\n" +
-                "LgHrBvpAdPk1Wl/iiM4lXtpMJ+qgK/S89ERsaJdslo5QntYIT/Emy14cWX/1K+4/\n" +
-                "0ZKWm3YDBPockJobiLr40g6xzWGNTN1CLAHOqWjXtVeRvw4by65pgrtUZjK57fgG\n" +
-                "FKQcHp2iw4EBPisZCWuRxAxIn0bRqaAWMsGiY86DtdM0t4OUWrtTRmrvBUg+MZAV\n" +
-                "sWVcf16FlISK0SkaaSstMO7w/RLlM4be9nq8RhWEtTMBKiPfjQbJSf70SUG2dl8G\n" +
-                "avkg2LGtA1WXPSHf2oFkVTmaWNI7LmnvDEaAoQA+LXrKN3mhIUstoXtJna3KM2OL\n" +
-                "K91G1mlVrpXBtVIryO4VPmhRW1A3yJRyTIR7zNZpI/ciQhfhh9K0miQcycvFamc8\n" +
-                "K1cePfHyJ2rYsS/hC4E0wUEnMnHUd/sYrDmjcRYiBNg1uxhZFJqUrN9PCXbrIYjs\n" +
-                "BcmGRAAUyl6ILRab3BWFCz65s6s1VmDIQa1zRj5PocCA";
-        PKCS8Encrypt = PKCS8Encrypt.replace("\n", "");
-        byte[] debytes = Base64.getDecoder().decode(PKCS8Encrypt);
-        byte[] temp = new byte[debytes.length % 16 == 0 ? debytes.length : (debytes.length / 16 + 1) * 16];
-        System.arraycopy(debytes, 0, temp, 0, debytes.length);
-    
-        byte []pwd = "Admin@123456".getBytes();
-        byte []pwdtemp = new byte[32];
-        System.arraycopy(pwd, 0, pwdtemp, pwdtemp.length - pwd.length, pwd.length);
-        SecretKey secretKey = new SecretKeySpec(pwdtemp, "AES");
-        Cipher ciphere = Cipher.getInstance("AES");
-        ciphere.init(Cipher.DECRYPT_MODE, secretKey);
-        byte []ret = ciphere.doFinal(temp);
-        System.out.println();
     }
     
     /**
@@ -322,8 +290,9 @@ public class ConvertTest
     public void testAESEncrypt() throws Exception
     {
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        // 这里的随机数种子，用于生成固定的盐值
         SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+        
+        // 这里生成盐值的随机数种子和生成 AES SecretKey的相同，也可指定其他种子去生成盐值
         byte []salt = new byte[16];
         sr.nextBytes(salt);
         
@@ -342,10 +311,12 @@ public class ConvertTest
         String src = "3AlXCDWfbf03e1CbOtwv4GHr3dpvXJ5fch8zoSfFLBg=";
         
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        // 这里的随机数种子，用于生成固定的盐值
         SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
+    
+        // 这里生成盐值的随机数种子和生成 AES SecretKey的相同，也可指定其他种子去生成盐值
         byte []salt = new byte[16];
         sr.nextBytes(salt);
+        
         keyGenerator.init(256, sr);
         SecretKey key = keyGenerator.generateKey();
     
@@ -367,6 +338,7 @@ public class ConvertTest
     @Test
     public void testAESEncrypt2() throws Exception
     {
+        // 这里生成盐值的随机数种子和生成 AES SecretKey的相同，也可指定其他种子去生成盐值
         byte [] salt = new byte[16];
         SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
         sr.nextBytes(salt);
@@ -387,6 +359,7 @@ public class ConvertTest
     {
         String src = "3AlXCDWfbf03e1CbOtwv4GHr3dpvXJ5fch8zoSfFLBg=";
     
+        // 这里生成盐值的随机数种子和生成 AES SecretKey的相同，也可指定其他种子去生成盐值
         byte [] salt = new byte[16];
         SecureRandom sr = new SecureRandom("MY_KEY".getBytes());
         sr.nextBytes(salt);

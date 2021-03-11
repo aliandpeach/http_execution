@@ -124,23 +124,20 @@ public class EnDecryptUtil
                 byte array[] = new BigInteger(line, 16).toByteArray();
                 byte[] temp = new byte[decryptLen];
                 // 经过BigInteger计算的byte 可能会有符号的题
-                if (array.length == 257 && array[0] == (byte) 0)
+    
+                if (array.length > 256)
                 {
-                    System.arraycopy(array, 1, temp, 0, 256);
+                    System.arraycopy(array, array.length - 256, temp, 0, 256);
                 }
-                else if (array.length == 255)
+                else if (array.length < 256)
                 {
-                    System.arraycopy(array, 0, temp, 1, 255);
-                }
-                else if (array.length == 256)
-                {
-                    System.arraycopy(array, 0, temp, 0, 256);
+                    System.arraycopy(array, 0, temp, 256 - array.length, array.length);
                 }
                 else
                 {
-                    // 不属于上面3中情况则说明每行的HEX字符串转换为字节后是有问题的
-                    throw new RuntimeException("hex line convert to bytes incorrect");
+                    System.arraycopy(array, 0, temp, 0, 256);
                 }
+                
                 //只能按照每次取出256个字节来解密（密文文件的大小 % 256 必须等于0）
                 try (ByteArrayInputStream inputStream = new ByteArrayInputStream(temp))
                 {
