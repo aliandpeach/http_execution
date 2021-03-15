@@ -53,8 +53,8 @@ public class HttpClientUtil
     //setConnectionRequestTimeout：设置从connect Manager获取Connection 超时时间，单位毫秒。这个属性是新加的属性，因为目前版本是可以共享连接池的。
     //setSocketTimeout：请求获取数据的超时时间，单位毫秒。 如果访问一个接口，多少时间内无法返回数据，就直接放弃此次调用。
     private static RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(5000).setConnectionRequestTimeout(3000)
-            .setSocketTimeout(5000).build();
+            .setConnectTimeout(22000).setConnectionRequestTimeout(12000)
+            .setSocketTimeout(22000).build();
 
     private static CloseableHttpClient getClient()
     {
@@ -210,8 +210,13 @@ public class HttpClientUtil
         }
     }
 
-    public static <T> T get(String url, Map<String, String> headers, Map<String, String> params, TypeReference<T> tTypeReference)
+    public static <T> T get(String url,
+                            Map<String, String> headers,
+                            Map<String, String> params,
+                            TypeReference<T> tTypeReference,
+                            int times)
     {
+        long start = System.currentTimeMillis();
         CloseableHttpClient client = null;
         try
         {
@@ -225,6 +230,12 @@ public class HttpClientUtil
         }
         catch (IOException e)
         {
+            long end = System.currentTimeMillis();
+            logger.error("IOException time : " + (end - start), e);
+            if (times > 0)
+            {
+                return get(url, headers, params, tTypeReference, --times);
+            }
             throw new RuntimeException("T get error", e);
         }
         catch (Exception e)

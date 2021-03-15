@@ -23,7 +23,7 @@ public class DataCenter
 
     public static LinkedBlockingQueue<DownloadScan> queue = new LinkedBlockingQueue<>();
 
-    public static Object lock = new Object();
+    public static final Object lock = new Object();
 
     public static void consumer(Map<Integer, String> hosts)
     {

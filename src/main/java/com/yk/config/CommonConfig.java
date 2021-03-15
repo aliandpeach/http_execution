@@ -17,19 +17,19 @@ import java.util.Properties;
 public class CommonConfig
 {
     private static Logger logger = LoggerFactory.getLogger("common_config");
-    
+
     private volatile String fileSaveDir;
-    
+
     private transient volatile char[] symmetrickey;
-    
+
     private transient volatile char[] symmetricsalt;
-    
+
     private transient volatile char[] storepasswd;
-    
+
     private transient volatile char[] keypasswd;
-    
+
     private volatile Properties druidProperties;
-    
+
     static
     {
         Object _confPath = System.getProperty("common.conf");
@@ -59,9 +59,9 @@ public class CommonConfig
                 logger.info("dir.mkdirs result : " + flag);
             }
             CommonConfig.getInstance().setFileSaveDir(fileSaveDir);
-            
+
             char[] storepasswd = null;
-            
+
             String storepasswdString = conf.getProperty("rsa.storepasswd.pwd");
             if (null == storepasswdString || storepasswdString.trim().length() == 0)
             {
@@ -74,7 +74,7 @@ public class CommonConfig
             {
                 storepasswd = storepasswdString.toCharArray();
             }
-            
+
             char[] keypasswd = null;
             String keypasswdString = conf.getProperty("rsa.keypasswd.pwd");
             if (null == keypasswdString || keypasswdString.trim().length() == 0)
@@ -88,15 +88,15 @@ public class CommonConfig
             {
                 keypasswd = keypasswdString.toCharArray();
             }
-            
+
             if (null == storepasswd || null == keypasswd)
             {
                 throw new RuntimeException("rsa storepasswd and keypasswd not loaded!");
             }
-            
+
             CommonConfig.getInstance().setStorepasswd(storepasswd);
             CommonConfig.getInstance().setKeypasswd(keypasswd);
-            
+
             String symmetrickeyString = conf.getProperty("symmetric.key");
             String symmetricsaltString = conf.getProperty("symmetric.salt");
             if (null == symmetrickeyString || symmetrickeyString.trim().length() == 0
@@ -115,13 +115,13 @@ public class CommonConfig
             throw new RuntimeException(e);
         }
     }
-    
+
     private CommonConfig()
     {
         loadDruidConf();
         loadLog4j2xml();
     }
-    
+
     private void loadDruidConf()
     {
         Object _confPath = System.getProperty("common.conf");
@@ -145,7 +145,7 @@ public class CommonConfig
             logger.error("CommonConfig load druid.properties file error ", e);
         }
     }
-    
+
     private void loadLog4j2xml()
     {
         Object _log4jConfPath = System.getProperty("common.conf");
@@ -169,67 +169,93 @@ public class CommonConfig
             logger.error("CommonConfig load log4jxml file error ", e);
         }
     }
-    
+
     public static CommonConfig getInstance()
     {
         return CommonConfigHolder.INSTANCE;
     }
-    
+
     private static class CommonConfigHolder
     {
         public static CommonConfig INSTANCE = new CommonConfig();
     }
-    
+
+    public boolean readStatus()
+    {
+        Object _confPath = System.getProperty("common.conf");
+        if (null == _confPath)
+        {
+            _confPath = "";
+        }
+        String _userDir = System.getProperty("user.dir");
+        File confFile = new File(_userDir + File.separator + _confPath + File.separator + "conf.properties");
+        Properties conf = new Properties();
+        try (FileInputStream fis = new FileInputStream(confFile))
+        {
+            conf.load(fis);
+            String runnerStopString = conf.getProperty("runner.stop");
+            if (null != runnerStopString && runnerStopString.trim().equalsIgnoreCase("true"))
+            {
+                return true;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public Properties getDruidProperties()
     {
         return druidProperties;
     }
-    
+
     public String getFileSaveDir()
     {
         return fileSaveDir;
     }
-    
+
     public void setFileSaveDir(String fileSaveDir)
     {
         this.fileSaveDir = fileSaveDir;
     }
-    
+
     public char[] getSymmetrickey()
     {
         return symmetrickey;
     }
-    
+
     private void setSymmetrickey(char[] symmetrickey)
     {
         this.symmetrickey = symmetrickey;
     }
-    
+
     public char[] getSymmetricsalt()
     {
         return symmetricsalt;
     }
-    
+
     private void setSymmetricsalt(char[] symmetricsalt)
     {
         this.symmetricsalt = symmetricsalt;
     }
-    
+
     public char[] getStorepasswd()
     {
         return storepasswd;
     }
-    
+
     public void setStorepasswd(char[] storepasswd)
     {
         this.storepasswd = storepasswd;
     }
-    
+
     public char[] getKeypasswd()
     {
         return keypasswd;
     }
-    
+
     public void setKeypasswd(char[] keypasswd)
     {
         this.keypasswd = keypasswd;
