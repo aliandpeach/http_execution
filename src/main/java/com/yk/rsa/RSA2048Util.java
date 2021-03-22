@@ -59,9 +59,7 @@ public class RSA2048Util
         {
             KeyStore privateKeyStore = KeyStore.getInstance(TYPE);
             privateKeyStore.load(inputStream, CommonConfig.getInstance().getStorepasswd());
-            CommonConfig.getInstance().setStorepasswd(null);
             PrivateKey key = (PrivateKey) privateKeyStore.getKey(ALISA, CommonConfig.getInstance().getKeypasswd());
-            CommonConfig.getInstance().setKeypasswd(null);
             keys.put("private", key.getEncoded());
             return key.getEncoded();
         }

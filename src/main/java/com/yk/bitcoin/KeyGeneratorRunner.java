@@ -1,13 +1,9 @@
 package com.yk.bitcoin;
 
-import com.yk.config.CommonConfig;
-import com.yk.mysql.DruidConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.security.SecureRandom;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,19 +11,15 @@ public class KeyGeneratorRunner implements Runnable
 {
     private Logger logger = LoggerFactory.getLogger("generator");
 
+    private Logger record = LoggerFactory.getLogger("record");
+
     private KeyGenerator generator = new KeyGenerator();
 
     private SecureRandom random = new SecureRandom();
 
-    private DataSource dataSource = DruidConnection.getInstance().getDuridDatasource();
-
     @Override
     public void run()
     {
-        if (CommonConfig.getInstance().readStatus())
-        {
-            return;
-        }
         try
         {
             Thread.sleep(1000);
@@ -63,7 +55,7 @@ public class KeyGeneratorRunner implements Runnable
 
                 String prikey = generator.keyGen(keyBytes, true);
                 String pubkey = generator.addressGen(keyBytes);
-
+                record.info(prikey + ", " + pubkey);
                 Map<String, String> keyAddr = new HashMap<>();
                 keyAddr.put("privatekey", prikey);
                 keyAddr.put("publickey", pubkey);

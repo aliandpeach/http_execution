@@ -1,25 +1,13 @@
 package com.yk.mysql;
 
-import com.alibaba.druid.pool.DruidConnectionHolder;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.yk.config.CommonConfig;
 import com.yk.rsa.RSA2048Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

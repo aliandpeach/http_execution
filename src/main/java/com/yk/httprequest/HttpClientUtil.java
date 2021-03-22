@@ -14,9 +14,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -225,7 +223,7 @@ public class HttpClientUtil
             HttpGet httpGet = new HttpGet(url);
             httpGet.setConfig(requestConfig);
             initHeader(httpGet, headers);
-            T result = client.execute(httpGet, new CurResponseHandler<T>(tTypeReference));
+            T result = client.execute(httpGet, new CurResponseHandler<>(tTypeReference));
             return result;
         }
         catch (IOException e)
@@ -335,7 +333,8 @@ public class HttpClientUtil
             return;
         }
         httpRequestBase.addHeader("ContentType", "application/json");
-        headers.entrySet().stream().forEach((entry) -> {
+        headers.entrySet().stream().forEach((entry) ->
+        {
             httpRequestBase.addHeader(entry.getKey(), entry.getValue());
         });
     }
@@ -356,14 +355,14 @@ public class HttpClientUtil
             int status = response.getStatusLine().getStatusCode();
             if (status < 200 || status >= 300)
             {
-                return null;
+                throw new IOException("response status is not correct");
             }
             HttpEntity httpEntity = response.getEntity();
-            if (null != httpEntity)
+            if (null == httpEntity)
             {
-                return JsonUtil.fromJson(EntityUtils.toString(httpEntity), typeReference);
+                throw new IOException("httpEntity is null");
             }
-            return null;
+            return JsonUtil.fromJson(EntityUtils.toString(httpEntity), typeReference);
         }
     }
 
@@ -399,7 +398,8 @@ public class HttpClientUtil
             this.fileName = fileName;
             this.dir = dir.replaceAll(Constants.REGEX_FILE_NAME, "");
             targetDir = CommonConfig.getInstance().getFileSaveDir() + File.separator + dir + File.separator;
-            if (!new File(targetDir).exists()) {
+            if (!new File(targetDir).exists())
+            {
                 new File(targetDir).mkdirs();
             }
         }

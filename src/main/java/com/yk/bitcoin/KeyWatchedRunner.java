@@ -1,7 +1,6 @@
 package com.yk.bitcoin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.yk.config.CommonConfig;
 import com.yk.httprequest.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +11,12 @@ import java.util.Map;
 public class KeyWatchedRunner implements Runnable
 {
     private Logger logger = LoggerFactory.getLogger("watched");
-    private Logger record = LoggerFactory.getLogger("record");
+
+    private Logger error = LoggerFactory.getLogger("error");
 
     @Override
     public void run()
     {
-        if (CommonConfig.getInstance().readStatus() && KeyCache.keyQueue.size() == 0)
-        {
-            logger.info("runner stopped!");
-            return;
-        }
         try
         {
             Thread.sleep(100);
@@ -66,11 +61,24 @@ public class KeyWatchedRunner implements Runnable
 
             Map<String, String> headers = new HashMap<>();
             headers.put("Connection", "keep-alive");
-            Map<String, Map<String, Long>> result = HttpClientUtil.get("https://blockchain.info/balance"
-                    , headers, params, new TypeReference<Map<String, Map<String, Long>>>()
-                    {
-                    }, 3);
+            Map<String, Map<String, Long>> result = null;
+            try
+            {
+                result = HttpClientUtil.get("https://blockchain.info/balance"
+                        , headers, params, new TypeReference<Map<String, Map<String, Long>>>()
+                        {
+                        }, 3);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
 
+            if (result == null)
+            {
+                temp.forEach((key, value) -> error.error("error : " + key + ", " + value));
+                return;
+            }
             for (Map.Entry<String, Map<String, Long>> entry : result.entrySet())
             {
                 if (null == entry)
@@ -80,7 +88,6 @@ public class KeyWatchedRunner implements Runnable
                 String pub = entry.getKey();
                 Map<String, Long> values = entry.getValue();
                 long balance = values.get("final_balance");
-                record.info(temp.get(pub) + ", " + pub);
                 if (balance > 0)
                 {
                     logger.info("Wallet private key = " + temp.get(pub) + ", balance: " + balance);

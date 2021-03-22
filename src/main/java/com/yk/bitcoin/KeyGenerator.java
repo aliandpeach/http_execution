@@ -9,10 +9,21 @@ import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 
 public class KeyGenerator
 {
     private ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
+
+    public static void main(String[] args) throws Exception
+    {
+        byte[] pri = new byte[32];
+        new SecureRandom("Satoshi Nakamoto".getBytes()).nextBytes(pri);
+        String pristring = new KeyGenerator().keyGen(pri, true);
+        String pubstring = new KeyGenerator().addressGen(pri);
+        System.out.println(pristring);
+        System.out.println(pubstring);
+    }
 
     public String keyGen(byte[] privateKey, boolean compressed) throws Exception
     {

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.Properties;
 
 public class CommonConfig
@@ -30,8 +31,11 @@ public class CommonConfig
 
     private volatile Properties druidProperties;
 
-    static
+    private volatile SecureRandom salt;
+
+    private void init()
     {
+        salt = new SecureRandom();
         Object _confPath = System.getProperty("common.conf");
         if (null == _confPath)
         {
@@ -58,7 +62,13 @@ public class CommonConfig
                 boolean flag = dir.mkdirs();
                 logger.info("dir.mkdirs result : " + flag);
             }
-            CommonConfig.getInstance().setFileSaveDir(fileSaveDir);
+            this.setFileSaveDir(fileSaveDir);
+
+            String need = conf.getProperty("not.need.rsa");
+            if (null != need && need.equalsIgnoreCase("true"))
+            {
+                return;
+            }
 
             char[] storepasswd = null;
 
@@ -94,8 +104,8 @@ public class CommonConfig
                 throw new RuntimeException("rsa storepasswd and keypasswd not loaded!");
             }
 
-            CommonConfig.getInstance().setStorepasswd(storepasswd);
-            CommonConfig.getInstance().setKeypasswd(keypasswd);
+            this.setStorepasswd(storepasswd);
+            this.setKeypasswd(keypasswd);
 
             String symmetrickeyString = conf.getProperty("symmetric.key");
             String symmetricsaltString = conf.getProperty("symmetric.salt");
@@ -104,10 +114,10 @@ public class CommonConfig
             {
                 throw new RuntimeException("symmetric encryption key not loaded!");
             }
-            char[] symmetrickey = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetrickeyString)).array()).toCharArray();
-            char[] symmetricsalt = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetricsaltString)).array()).toCharArray();
-            CommonConfig.getInstance().setSymmetrickey(symmetrickey);
-            CommonConfig.getInstance().setSymmetricsalt(symmetricsalt);
+//            char[] symmetrickey = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetrickeyString)).array()).toCharArray();
+//            char[] symmetricsalt = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetricsaltString)).array()).toCharArray();
+            this.setSymmetrickey(symmetrickeyString.toCharArray());
+            this.setSymmetricsalt(symmetricsaltString.toCharArray());
         }
         catch (Exception e)
         {
@@ -118,6 +128,7 @@ public class CommonConfig
 
     private CommonConfig()
     {
+        init();
         loadDruidConf();
         loadLog4j2xml();
     }
@@ -259,5 +270,10 @@ public class CommonConfig
     public void setKeypasswd(char[] keypasswd)
     {
         this.keypasswd = keypasswd;
+    }
+
+    public SecureRandom getSalt()
+    {
+        return salt;
     }
 }
