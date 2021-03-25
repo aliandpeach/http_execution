@@ -1,6 +1,6 @@
 import com.yk.host.HostHolder;
 import com.yk.httprequest.HttpClientUtil;
-import com.yk.rsa.RSA2048Util;
+import com.yk.crypto.RSA2048Util;
 import com.yk.util.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

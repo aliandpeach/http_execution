@@ -2,7 +2,7 @@ package com.yk.mysql;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.yk.config.CommonConfig;
-import com.yk.rsa.RSA2048Util;
+import com.yk.crypto.RSA2048Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,13 @@ public class DruidConnection
 {
     private static Logger connLogger = LoggerFactory.getLogger("druid_conn");
     private static Properties properties;
-
+    
     private static DruidDataSource druidDataSource;
-
+    
+    private RSA2048Util rsa;
+    
+    private CommonConfig config;
+    
     static
     {
         properties = new Properties();
@@ -35,14 +39,14 @@ public class DruidConnection
             {
                 properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("druid.properties"));
             }
-
+            
         }
         catch (IOException e)
         {
             connLogger.error("load Properties IOException", e);
         }
     }
-
+    
     /**
      * 创建单列模式
      *
@@ -52,14 +56,17 @@ public class DruidConnection
     {
         return DruidConnectionHolder.INSTANCE;
     }
-
+    
     public DruidDataSource getDuridDatasource()
     {
         return druidDataSource;
     }
-
+    
     private DruidConnection()
     {
+        this.config = CommonConfig.getInstance();
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        
         druidDataSource = new DruidDataSource();
         druidDataSource.setDriverClassName(properties.getProperty("jdbc.driverClassName"));
         druidDataSource.setUrl(properties.getProperty("jdbc.url"));
@@ -67,7 +74,7 @@ public class DruidConnection
         String pwd = properties.getProperty("jdbc.password");
         try
         {
-            druidDataSource.setPassword(RSA2048Util.decrypt(pwd));
+            druidDataSource.setPassword(rsa.decrypt(pwd));
         }
         catch (Exception e)
         {
@@ -79,12 +86,12 @@ public class DruidConnection
         druidDataSource.setMaxWait(60000);
         druidDataSource.setValidationQuery("SELECT 1");
     }
-
+    
     private static class DruidConnectionHolder
     {
         public static DruidConnection INSTANCE = new DruidConnection();
     }
-
+    
     public static void main(String args[])
     {
         DataSource dataSource = DruidConnection.getInstance().getDuridDatasource();
@@ -111,7 +118,7 @@ public class DruidConnection
             close(conn, ps, rs);
         }
     }
-
+    
     public static void close(Connection conn, PreparedStatement ps, ResultSet rs)
     {
         try

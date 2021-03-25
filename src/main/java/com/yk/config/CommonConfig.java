@@ -1,7 +1,5 @@
 package com.yk.config;
 
-import cn.hutool.core.util.HexUtil;
-import com.yk.rsa.RSA2048Util;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
@@ -18,21 +16,21 @@ import java.util.Properties;
 public class CommonConfig
 {
     private static Logger logger = LoggerFactory.getLogger("common_config");
-
+    
     private volatile String fileSaveDir;
-
+    
     private transient volatile char[] symmetrickey;
-
+    
     private transient volatile char[] symmetricsalt;
-
+    
     private transient volatile char[] storepasswd;
-
+    
     private transient volatile char[] keypasswd;
-
+    
     private volatile Properties druidProperties;
-
+    
     private volatile SecureRandom salt;
-
+    
     private void init()
     {
         salt = new SecureRandom();
@@ -63,15 +61,15 @@ public class CommonConfig
                 logger.info("dir.mkdirs result : " + flag);
             }
             this.setFileSaveDir(fileSaveDir);
-
+            
             String need = conf.getProperty("not.need.rsa");
             if (null != need && need.equalsIgnoreCase("true"))
             {
                 return;
             }
-
+            
             char[] storepasswd = null;
-
+            
             String storepasswdString = conf.getProperty("rsa.storepasswd.pwd");
             if (null == storepasswdString || storepasswdString.trim().length() == 0)
             {
@@ -84,7 +82,7 @@ public class CommonConfig
             {
                 storepasswd = storepasswdString.toCharArray();
             }
-
+            
             char[] keypasswd = null;
             String keypasswdString = conf.getProperty("rsa.keypasswd.pwd");
             if (null == keypasswdString || keypasswdString.trim().length() == 0)
@@ -98,15 +96,15 @@ public class CommonConfig
             {
                 keypasswd = keypasswdString.toCharArray();
             }
-
+            
             if (null == storepasswd || null == keypasswd)
             {
                 throw new RuntimeException("rsa storepasswd and keypasswd not loaded!");
             }
-
+            
             this.setStorepasswd(storepasswd);
             this.setKeypasswd(keypasswd);
-
+            
             String symmetrickeyString = conf.getProperty("symmetric.key");
             String symmetricsaltString = conf.getProperty("symmetric.salt");
             if (null == symmetrickeyString || symmetrickeyString.trim().length() == 0
@@ -114,8 +112,6 @@ public class CommonConfig
             {
                 throw new RuntimeException("symmetric encryption key not loaded!");
             }
-//            char[] symmetrickey = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetrickeyString)).array()).toCharArray();
-//            char[] symmetricsalt = new String(RSA2048Util.decrypt(HexUtil.decodeHex(symmetricsaltString)).array()).toCharArray();
             this.setSymmetrickey(symmetrickeyString.toCharArray());
             this.setSymmetricsalt(symmetricsaltString.toCharArray());
         }
@@ -125,14 +121,14 @@ public class CommonConfig
             throw new RuntimeException(e);
         }
     }
-
+    
     private CommonConfig()
     {
         init();
         loadDruidConf();
         loadLog4j2xml();
     }
-
+    
     private void loadDruidConf()
     {
         Object _confPath = System.getProperty("common.conf");
@@ -156,7 +152,7 @@ public class CommonConfig
             logger.error("CommonConfig load druid.properties file error ", e);
         }
     }
-
+    
     private void loadLog4j2xml()
     {
         Object _log4jConfPath = System.getProperty("common.conf");
@@ -180,17 +176,17 @@ public class CommonConfig
             logger.error("CommonConfig load log4jxml file error ", e);
         }
     }
-
+    
     public static CommonConfig getInstance()
     {
         return CommonConfigHolder.INSTANCE;
     }
-
+    
     private static class CommonConfigHolder
     {
         public static CommonConfig INSTANCE = new CommonConfig();
     }
-
+    
     public boolean readStatus()
     {
         Object _confPath = System.getProperty("common.conf");
@@ -216,62 +212,62 @@ public class CommonConfig
         }
         return false;
     }
-
+    
     public Properties getDruidProperties()
     {
         return druidProperties;
     }
-
+    
     public String getFileSaveDir()
     {
         return fileSaveDir;
     }
-
+    
     public void setFileSaveDir(String fileSaveDir)
     {
         this.fileSaveDir = fileSaveDir;
     }
-
+    
     public char[] getSymmetrickey()
     {
         return symmetrickey;
     }
-
+    
     private void setSymmetrickey(char[] symmetrickey)
     {
         this.symmetrickey = symmetrickey;
     }
-
+    
     public char[] getSymmetricsalt()
     {
         return symmetricsalt;
     }
-
+    
     private void setSymmetricsalt(char[] symmetricsalt)
     {
         this.symmetricsalt = symmetricsalt;
     }
-
+    
     public char[] getStorepasswd()
     {
         return storepasswd;
     }
-
+    
     public void setStorepasswd(char[] storepasswd)
     {
         this.storepasswd = storepasswd;
     }
-
+    
     public char[] getKeypasswd()
     {
         return keypasswd;
     }
-
+    
     public void setKeypasswd(char[] keypasswd)
     {
         this.keypasswd = keypasswd;
     }
-
+    
     public SecureRandom getSalt()
     {
         return salt;

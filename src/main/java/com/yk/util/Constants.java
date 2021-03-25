@@ -14,10 +14,6 @@ public class Constants
 
     /*public static final String ROOT_JKS_PWD = "";*/
 
-    public static final String ALIAS = "crazy";
-
-    public static final String RSA_ALGORITHM = "RSA";
-
     public static final String DOWNLOAD_FILENAME = "download_filename=";
 
     /*public enum VType

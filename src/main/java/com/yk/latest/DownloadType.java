@@ -1,6 +1,6 @@
 package com.yk.latest;
 
-import com.yk.httprequest.JsonUtil;
+import com.yk.httprequest.JSONUtil;
 
 import java.io.Serializable;
 
@@ -51,6 +51,6 @@ public class DownloadType implements Serializable
         {
             return "{}";
         }
-        return JsonUtil.toJson(this);
+        return JSONUtil.toJson(this);
     }
 }

@@ -1,7 +1,7 @@
 package com.yk.task;
 
+import com.yk.config.CommonConfig;
 import com.yk.httprequest.HttpClientUtil;
-import com.yk.httprequest.JsonUtil;
 import com.yk.latest.DownloadTypeHolder;
 import com.yk.mysql.DruidConnection;
 import com.yk.util.Constants;
@@ -13,12 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +43,8 @@ public class ScanTask extends AbstractTask
         boolean results = false;
         try
         {
-            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, "");
+            String rootDir = CommonConfig.getInstance().getFileSaveDir();
+            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, "", rootDir);
             if (!results)
             {
                 logger.error("executeDownload results is null url = " + url);
