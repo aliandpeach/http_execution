@@ -88,13 +88,13 @@
                     <include>log4j2.xml</include>
                 </includes>
             </resource>
-            <resource>
+            <!--<resource>
                 <directory>src/main/resources</directory>
                 <targetPath>${project.basedir}</targetPath>
                 <includes>
                     <include>conf.properties</include>
                 </includes>
-            </resource>
+            </resource>-->
         </resources>
         <plugins>
             <plugin>
