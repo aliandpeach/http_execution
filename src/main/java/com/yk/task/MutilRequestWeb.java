@@ -31,7 +31,7 @@ public class MutilRequestWeb {
         Map<Integer, String> hosts = HostHolder.getInstance().getHostParameters();
         Map<String, DownloadType> types = DownloadTypeHolder.getInstance().getTypeParameters();
 
-        /*ExecutorService scanService = Executors.newFixedThreadPool(3);
+        ExecutorService scanService = Executors.newFixedThreadPool(3);
         types.entrySet().stream().forEach((t) -> {
             if (null == t.getValue() || (null == t.getValue().getLatestUrl() && null == t.getValue().getOriginalUrl())) {
                 return;
@@ -53,7 +53,7 @@ public class MutilRequestWeb {
                             continue;
                         } else {
                             url = nextUrl;
-                            DownloadTypeOption.updateLatestUrlByType(t.getValue().getType(), url);
+                            new DownloadTypeOption().updateLatestUrlByType(t.getValue().getType(), url);
                             break;
                         }
                     }
@@ -64,7 +64,7 @@ public class MutilRequestWeb {
                     }
                 }
             });
-        });*/
+        });
 
         ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactory() {
             private AtomicInteger integer = new AtomicInteger(1);

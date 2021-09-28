@@ -65,7 +65,7 @@ public class DruidConnection
     private DruidConnection()
     {
         this.config = CommonConfig.getInstance();
-        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd(), null, null);
         
         druidDataSource = new DruidDataSource();
         druidDataSource.setDriverClassName(properties.getProperty("jdbc.driverClassName"));

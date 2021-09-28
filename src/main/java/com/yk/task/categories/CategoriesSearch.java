@@ -31,7 +31,7 @@ public class CategoriesSearch
     public CategoriesSearch()
     {
         this.config = CommonConfig.getInstance();
-        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd(), null, null);
     }
     
     private CountDownLatch tasksStart = new CountDownLatch(1);

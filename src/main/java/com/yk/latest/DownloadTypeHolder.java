@@ -31,7 +31,7 @@ public class DownloadTypeHolder
     private DownloadTypeHolder()
     {
         this.config = CommonConfig.getInstance();
-        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd(), null, null);
     }
     
     public Map<String, DownloadType> getTypeParameters()

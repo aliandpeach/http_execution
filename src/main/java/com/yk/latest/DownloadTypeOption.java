@@ -21,7 +21,7 @@ public class DownloadTypeOption
     public DownloadTypeOption()
     {
         this.config = CommonConfig.getInstance();
-        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd(), null, null);
     }
     
     public void updateLatestUrlByType(String type, String latestUrl)

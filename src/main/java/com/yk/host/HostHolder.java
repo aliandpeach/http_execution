@@ -27,7 +27,7 @@ public class HostHolder
     private HostHolder()
     {
         this.config = CommonConfig.getInstance();
-        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd());
+        this.rsa = RSA2048Util.getInstance(config.getStorepasswd(), config.getKeypasswd(), null, null);
     }
     
     public Map<Integer, String> getHostParameters()
