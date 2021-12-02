@@ -6,6 +6,7 @@ import com.yk.httprequest.HttpClientUtil;
 import com.yk.latest.DownloadTypeOption;
 import com.yk.mysql.DruidConnection;
 import com.yk.task.AbstractTask;
+import com.yk.task.MutilRequestWeb;
 import com.yk.util.Constants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -66,7 +67,7 @@ public class CategoriesTask extends AbstractTask
         String results = null;
         try
         {
-            results = HttpClientUtil.getString(host + url, null, null);
+            results = MutilRequestWeb.httpClientUtil.getString(host + url, null, null);
             if (null == results)
             {
                 logger.error("executeCategoriesWeb results is null url = " + url);
@@ -227,7 +228,7 @@ public class CategoriesTask extends AbstractTask
         String results = null;
         try
         {
-            results = HttpClientUtil.getString(host + enter_url, null, null);
+            results = MutilRequestWeb.httpClientUtil.getString(host + enter_url, null, null);
             if (null == results)
             {
                 logger.error("subOpt results is null enter_url = " + enter_url);
@@ -420,7 +421,7 @@ public class CategoriesTask extends AbstractTask
         try
         {
             String rootDir = CommonConfig.getInstance().getFileSaveDir();
-            results = HttpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, ctype, rootDir);
+            results = MutilRequestWeb.httpClientUtil.getBytes(hosts.get(index) + url, null, null, finalName, ctype, rootDir);
             if (!results)
             {
                 logger.error("executeDownload results is null url = " + url);

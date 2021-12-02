@@ -1,6 +1,7 @@
 package com.yk.task;
 
 import com.yk.host.HostHolder;
+import com.yk.httprequest.HttpClientUtil;
 import com.yk.latest.DownloadType;
 import com.yk.latest.DownloadTypeHolder;
 import com.yk.latest.DownloadTypeOption;
@@ -12,9 +13,16 @@ import com.yk.task.consumer.DataConsumer;
 import com.yk.task.datacenter.CategoriesCenter;
 import com.yk.task.datacenter.DataCenter;
 import com.yk.task.producer.DataProducer;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +34,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MutilRequestWeb {
     private final static Logger logger = LoggerFactory.getLogger("MutilRequest");
-
-    public static void main(String[] args) {
+    public static HttpClientUtil httpClientUtil;
+    public static void main(String[] args) throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException
+    {
+        httpClientUtil = new HttpClientUtil(null);
         Map<Integer, String> hosts = HostHolder.getInstance().getHostParameters();
         Map<String, DownloadType> types = DownloadTypeHolder.getInstance().getTypeParameters();
 

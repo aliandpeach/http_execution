@@ -2,9 +2,9 @@ package com.yk.task.categories;
 
 import com.yk.config.CommonConfig;
 import com.yk.host.HostHolder;
-import com.yk.httprequest.HttpClientUtil;
 import com.yk.mysql.DruidConnection;
 import com.yk.crypto.RSA2048Util;
+import com.yk.task.MutilRequestWeb;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -92,7 +92,7 @@ public class CategoriesSearch
         String results = "";
         try
         {
-            results = HttpClientUtil.getString(host + ARG + "/", null, null);
+            results = MutilRequestWeb.httpClientUtil.getString(host + ARG + "/", null, null);
             if (null == results)
             {
                 logger.info("CategoriesSearch results is null");
