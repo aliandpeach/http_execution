@@ -2,6 +2,7 @@ package com.yk.latest;
 
 import com.yk.httprequest.JSONUtil;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 public class DownloadType implements Serializable
@@ -47,10 +48,13 @@ public class DownloadType implements Serializable
     @Override
     public String toString()
     {
-        if (null == this)
+        try
+        {
+            return JSONUtil.toJson(this);
+        }
+        catch (IOException e)
         {
             return "{}";
         }
-        return JSONUtil.toJson(this);
     }
 }
