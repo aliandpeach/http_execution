@@ -34,7 +34,7 @@ public class ExecuteScanWebTest
         String results = null;
         try
         {
-            results = new HttpClientUtil(null).getString(/*hosts.get(index) + url*/"", null, null);
+            results = new HttpClientUtil().getString(/*hosts.get(index) + url*/"", null, null);
             if (null == results)
             {
                 System.out.println("executeScanWeb results is null url = " + url);
@@ -135,7 +135,7 @@ public class ExecuteScanWebTest
         String results = null;
         try
         {
-            results = new HttpClientUtil(null).getString(hosts.get(index) + enter_url, null, null);
+            results = new HttpClientUtil().getString(hosts.get(index) + enter_url, null, null);
             if (null == results)
             {
                 System.out.println("subOpt results is null enter_url = " + enter_url);

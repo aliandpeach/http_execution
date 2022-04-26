@@ -37,7 +37,7 @@ public class MutilRequestWeb {
     public static HttpClientUtil httpClientUtil;
     public static void main(String[] args) throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException
     {
-        httpClientUtil = new HttpClientUtil(null);
+        httpClientUtil = new HttpClientUtil();
         Map<Integer, String> hosts = HostHolder.getInstance().getHostParameters();
         Map<String, DownloadType> types = DownloadTypeHolder.getInstance().getTypeParameters();
 
